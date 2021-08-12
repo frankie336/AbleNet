@@ -1,5 +1,5 @@
 
-from L3VpnTable import L3VpnTableInteract
+from Database.L3VpnTable import L3VpnTableInteract
 
 def main():
 
