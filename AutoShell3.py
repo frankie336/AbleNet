@@ -147,7 +147,7 @@ class LoadDataToList(FormalAutoShellInterface):
 
         return commands
 
-        for x in x :
+
 
 
 
