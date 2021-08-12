@@ -27,8 +27,8 @@ import os
 import pandas as pd
 from io import StringIO
 
-from L3VpnTable import L3VpnTableInteract
-from DevicesTable import DeviceTableInteract
+from Database.L3VpnTable import L3VpnTableInteract
+from Database.DevicesTable import DeviceTableInteract
 
 
 class FormalAutoShellInterface(metaclass=abc.ABCMeta):
