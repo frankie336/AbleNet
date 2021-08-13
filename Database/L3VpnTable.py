@@ -21,7 +21,7 @@ custom local modules
 from GeneratePassword import PassWordGen
 
 #engine = create_engine('sqlite:///:memory:', echo=True)#For local ManagementIping
-engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet",echo = True)
+engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet/",echo = True)
 
 
 Base = declarative_base()
