@@ -59,9 +59,9 @@ class RunSqlQuery(FormalQueryServiceInterface):
         for vpn_obj in result.scalars():
             service_provision_dict = {'service_name': vpn_obj.SerViceName, 'customer_name': vpn_obj.CustomerName,
                                      'Status': vpn_obj.Status, 'provider_edge': vpn_obj.ProviderEdge,
-                                     'pe_interface': vpn_obj.PeInterface, 'pe_wan_ip': vpn_obj.PeWanIPAddress,
-                                     'ce_wan_ip': vpn_obj.CeWanIPAddress,
-                                     'management_interface': vpn_obj.ManageInterface,
+                                     'pe_interface': vpn_obj.PeInterface,'wan_vlan':vpn_obj.WanVlan,
+                                      'man_vlan':vpn_obj.ManVlan,'pe_wan_ip': vpn_obj.PeWanIPAddress,
+                                      'ce_wan_ip': vpn_obj.CeWanIPAddress,'management_interface': vpn_obj.ManageInterface,
                                      'management_ip': vpn_obj.ManagementIp, 'as_number': vpn_obj.AsNumber,
                                      'bgp_password': vpn_obj.BgpPassword, 'route_distinguisher': vpn_obj.Rd,
                                      'route_target': vpn_obj.Rt, 'import_vpn': vpn_obj.ImportVpn,
@@ -71,15 +71,22 @@ class RunSqlQuery(FormalQueryServiceInterface):
 
                                      }
 
-        return service_provision_dict
+            return service_provision_dict
 
 
     def query_device(self, device_name: str):
         """Query physical device"""
+
         device = Base.classes.devices
-        stmt = select(vpn).where(vpn.SerViceName == device_name)
+        stmt = select(device).where(device.HostName == device_name)
         result = self.session.execute(stmt)
 
+        for device_obj in result.scalars():
+            device_dict = {'host_name': device_obj.HostName, 'management_ip': device_obj.ManagementIpAddress,
+                           'model_name': device_obj.ModelName, 'site_name': device_obj.SiteName
+                           }
+
+            return device_dict
 
 
 

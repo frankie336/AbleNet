@@ -36,7 +36,7 @@ class Device(Base):
 
 
 Session = sessionmaker(bind=engine)
-def CreateDevice(query,query_string,commit,HostName,ManagementIpAddress,ServiceType,
+def CreateDevice(commit,HostName,ManagementIpAddress,ServiceType,
              ModelName,SiteName):
     
     Base.metadata.create_all(engine)  # Ceates the table schema
@@ -51,49 +51,26 @@ def CreateDevice(query,query_string,commit,HostName,ManagementIpAddress,ServiceT
     session.add(new_device)
 
     """
-    Use this block for queries
-    """
-    if query == True:
-
-        from sqlalchemy import select
-
-        stmt = select(Device).where(Device.HostName == query_string)
-        result = session.execute(stmt)
-
-        for device_obj in result.scalars():
-
-            device_dict = {'host_name':device_obj.HostName,'management_ip':device_obj.ManagementIpAddress,
-                           'model_name':device_obj.ModelName,'site_name':device_obj.SiteName
-                           }
-
-            return device_dict
-    else:
-        pass
-
-    """
     use this block to commit new services
     """
     if commit == True:
         session.commit()
 
 
-def DeviceTableInteract(query,commit,query_string=None):
-
-    query = query
-    query_string = query_string
+def DeviceTableInteract(commit):
     commit = commit
-    HostName='bas01PE01'
-    ManagementIpAddress ='172.16.0.7'
-    ServiceType = 'PE'
-    ModelName = 'IOSv-L3'
+    HostName='bas01ceSW01'
+    ManagementIpAddress ='172.16.0.9'
+    ServiceType = 'CEsw'
+    ModelName = 'IOSv-L2'
     SiteName = 'bas01'
 
-    device_dict=CreateDevice(query,query_string,commit,HostName,
+    CreateDevice(commit, HostName,
                  ManagementIpAddress,
-                 ServiceType,ModelName,SiteName)
+                 ServiceType,
+                 ModelName, SiteName)
 
 
-    return device_dict
 
 
 

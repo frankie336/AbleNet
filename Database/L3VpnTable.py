@@ -43,11 +43,12 @@ class L3Vpn(Base):
     Routes = Column(String(50))  #10.100.100.0 255.255.255.0
     CustomerNextHop = Column(String(50))  #10.100.100.100
     PeInterface = Column(String(50))#Gi0/0.3
+    WanVlan = Column(String(50))#103
+    ManVlan = Column(String(50))  # 903
     PeWanIPAddress = Column(String(50))  # 10.100.100.1 255.255.255.252
     CeWanIPAddress = Column(String(50))  # 10.100.100.2 255.255.255.252
     ManageInterface=Column(String(50))#Gi0/0.903
     ManagementIp = Column(String(50))#172.16.0.0/16
-    Vlan =  Column(String(50))#102
     Cir = Column(String(50))#50mbps
     Switch = Column(String(50))#zur01ceSW01
     SwitchInterface = Column(String(50))#Gi0/0
@@ -63,10 +64,11 @@ def CreateL3Vpn(query,query_string,commit,SerViceName,CustomerName,
                 ProviderEdge,AsNumber,
                 BgpPassword,Rd,Rt,ImportVpn,
                 Routes,CustomerNextHop,
-                PeInterface,PeWanIPAddress,
+                PeInterface,WanVlan,ManVlan,
+                PeWanIPAddress,
                 CeWanIPAddress,
                 ManageInterface,ManagementIp,
-                Vlan,Cir,Switch,
+                Cir,Switch,
                 SwitchInterface,
                 ):
 
@@ -80,9 +82,10 @@ def CreateL3Vpn(query,query_string,commit,SerViceName,CustomerName,
                 ProviderEdge=ProviderEdge,AsNumber=AsNumber,
                 BgpPassword=BgpPassword,Rd=Rd,Rt=Rt,ImportVpn=ImportVpn,
                 Routes=Routes,CustomerNextHop=CustomerNextHop,PeInterface=PeInterface,
+                WanVlan=WanVlan,ManVlan=ManVlan,
                 PeWanIPAddress=PeWanIPAddress,CeWanIPAddress=CeWanIPAddress,
                 ManageInterface=ManageInterface,
-                ManagementIp=ManagementIp,Vlan=Vlan,Cir=Cir,
+                ManagementIp=ManagementIp,Cir=Cir,
                 Switch=Switch,SwitchInterface=SwitchInterface
                 )
 
@@ -127,11 +130,12 @@ def L3VpnTableInteract(query,commit,query_string=None):
     Routes='10.10.10.0 255.255.255.0'
     CustomerNextHop ='10.10.10.254'
     PeInterface='Gi0/0.3'
+    WanVlan = '103'
+    ManVlan = '903'
     PeWanIPAddress = '10.0.1.9'
     CeWanIPAddress = '10.0.1.10'
     ManageInterface='Gi0/0.903'
     ManagementIp='172.16.0.6'
-    Vlan='103'
     Cir='25'
     Switch='zur01ceSW01'
     SwitchInterface='Gi0/3'
@@ -144,6 +148,7 @@ def L3VpnTableInteract(query,commit,query_string=None):
                     ImportVpn,Routes,
                     CustomerNextHop,
                     PeInterface,
+                    WanVlan,ManVlan,
                     PeWanIPAddress,
                     CeWanIPAddress,
                     ManageInterface,

@@ -35,27 +35,40 @@ from Database.Queries import RunSqlQuery
 class FormalAutoShellInterface(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, 'load_vpn_data') and
-                callable(subclass.load_vpn_data) and
+        return (hasattr(subclass, 'load_l3vpn_data') and
+                callable(subclass.load_l3vpn_data) and
+
+                hasattr(subclass, 'load_device_data') and
+                callable(subclass.load_device_data) and
                 hasattr(subclass, 'term_zero') and
                 callable(subclass.term_zero) and
                 hasattr(subclass, 'l3vpn_shell') and
                 callable(subclass.l3vpn_shell) and
-
                 hasattr(subclass, 'layer2_shell') and
                 callable(subclass.layer2_shell) and
 
-                hasattr(subclass, 'cios_build_vpn') and
+                hasattr(subclass, 'cios_build_l3vpn') and
                 callable(subclass.ciscoios_build_vpn) and
+
+                hasattr(subclass, 'cios_build_l2') and
+                callable(subclass.ciscoios_build_l2) and
+
+
                 hasattr(subclass, 'find_ipv4') and
                 callable(subclass.find_ipv4) or
                 NotImplemented)
 
 
     @abc.abstractmethod
-    def load_vpn_data(self,query_string: str):
+    def load_l3vpn_data(self,query_string: str):
         """Load the vpn data from sql query"""
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def load_device_data(self,query_string: str):
+        """Load L3vpn device data"""
+        raise NotImplementedError
+
 
     @abc.abstractmethod
     def term_zero(self, device_id: str):
@@ -74,7 +87,12 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
 
     @abc.abstractmethod
-    def cios_build_vpn(self):
+    def cios_build_l3vpn(self):
+        """Builds Cisco IOS MPLS VPN"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def cios_build_l2(self):
         """Builds Cisco IOS MPLS VPN"""
         raise NotImplementedError
 
@@ -87,13 +105,23 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
 class LoadDataToList(FormalAutoShellInterface):
 
-    def load_vpn_data(self,query_string: str):
+    def load_l3vpn_data(self,query_string: str):
         """Load the vpn data from sql query"""
 
         query = RunSqlQuery()
         service_provision_dict = query.query_l3vpn_data(service_name=query_string)
 
         return service_provision_dict
+
+
+    def load_device_data(self,query_string: str):
+        """Load L3vpn device data"""
+        query = RunSqlQuery()
+        device_dict = query.query_device(device_name=query_string)
+
+        return device_dict
+
+
 
 
     def term_zero(self, device_id: str):
@@ -114,10 +142,10 @@ class LoadDataToList(FormalAutoShellInterface):
         return ipv4_address
 
 
-    def cios_build_vpn(self):
+    def cios_build_l3vpn(self):
         """Builds Cisco IOS MPLS VPN"""
 
-        service_provision_dict = self.load_vpn_data(query_string='vpn00005')
+        service_provision_dict = self.load_l3vpn_data(query_string='vpn00005')
         print(service_provision_dict)
 
         type1_rd = service_provision_dict['as_number']+':'+service_provision_dict['route_distinguisher']#One time definition of rd/rt
@@ -160,7 +188,7 @@ class LoadDataToList(FormalAutoShellInterface):
         customer_routes ='10.100.100.0 255.255.255.0,10.200.200.0 255.255.255.0'
         found_routes = self.find_ipv4(input_string=customer_routes)
 
-        
+
 
         #custv4troutes='ip route vrf '+service_provision_dict['service_name']+' '+route+' '+service_provision_dict['customer_next_hop']
 
@@ -176,6 +204,30 @@ class LoadDataToList(FormalAutoShellInterface):
 
         return commands
 
+
+    def cios_build_l2(self):
+        """Builds Cisco IOS Layer2"""
+        service_provision_dict = self.load_l3vpn_data(query_string='vpn00005')
+
+        cust_int = service_provision_dict['ce_switch_interface']#One time definition of customer interface
+
+
+        select_l2_int ='interface '+cust_int
+        des_l2_int = 'description '+service_provision_dict['service_name']
+        trunk = 'switchport trunk encapsulation dot1q'
+        ce_vlan = 'switchport trunk allowed vlan '+service_provision_dict['wan_vlan']
+        man_vlan = 'switchport trunk allowed vlan add '+ service_provision_dict['man_vlan']
+
+
+
+
+        commands = ['configure terminal',select_l2_int,des_l2_int ,trunk,
+                    ce_vlan,man_vlan,
+
+
+                    ]
+
+        return commands
 
 
 
@@ -220,8 +272,6 @@ class ChannelClass(LoadDataToList):
 
     def l3vpn_shell(self, host_ip: str):
         """Make changes on PE device"""
-
-
         terminal_length = self.term_zero(device_id='cisco')
 
         try:
@@ -242,7 +292,7 @@ class ChannelClass(LoadDataToList):
         time.sleep(.2)
 
 
-        command_set = self.cios_build_vpn()
+        command_set = self.cios_build_l3vpn()
 
         for x in command_set:
             time.sleep(.2)
@@ -251,7 +301,7 @@ class ChannelClass(LoadDataToList):
         """
         special case for adding multiple customer routes
         """
-        service_provision_dict = self.load_vpn_data(query_string='vpn00005')
+        service_provision_dict = self.load_l3vpn_data(query_string='vpn00005')
 
         customer_routes = service_provision_dict['customer_routes']
         customer_routes ='10.10.10.0 255.255.255.0,10.20.20.20.0 255.255.255.0'
@@ -275,24 +325,70 @@ class ChannelClass(LoadDataToList):
 
         ssh.close()
         print(shell_output)
-
-
         #print('Succesfull connection to ' + host_name + ' at IP address:' + host_ip)
 
 
     def layer2_shell(self, host_ip: str):
         """Make changes on CE switch"""
-        pass
+        terminal_length = self.term_zero(device_id='cisco')
+
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(host_ip, port=22, username=self.username, password=password, look_for_keys=False, timeout=None)
+            channel = ssh.get_transport().open_session()
+            channel.invoke_shell()
+        except Exception as e:
+            print(host_ip, e.args)
+            return
+
+        channel.sendall(terminal_length)  # Send terminal length zero command
+
+        channel.sendall('enable\n')
+        time.sleep(.2)
+        channel.sendall('cisco\n')  # Need a dynamic solution  for password here
+        time.sleep(.2)
+
+        command_set = self.cios_build_l2()
+
+
+        for x in command_set:
+            time.sleep(.2)
+            channel.sendall(x + "\n")
+
+
+        channel.sendall('end \n')
+        channel.sendall('write memory\n')
+
+
+
+        time.sleep(.2)
+        shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
+
+        ssh.close()
+        print(shell_output)
+
+
 
 
 
     def main(self):
 
-        pe_device = DeviceTableInteract(query=True, commit=False, query_string='zur01PE01')
-        pe_ip = pe_device['management_ip']
-        host_name = pe_device['host_name']
-
-        self.l3vpn_shell(host_ip=pe_ip)
+        """
+        L3
+        """
+        pe_device_dict = self.load_device_data(query_string='zur01PE01')
+        print(pe_device_dict)
+        pe_ip = pe_device_dict['management_ip']
+        host_name = pe_device_dict['host_name']
+        #self.l3vpn_shell(host_ip=pe_ip)
+        """
+        L2
+        """
+        ce_switch_dict = self.load_device_data(query_string='zur01ceSW01')
+        print(ce_switch_dict)
+        ce_switch_ip = ce_switch_dict['management_ip']
+        self.layer2_shell(host_ip=ce_switch_ip)
 
 
 
