@@ -135,7 +135,7 @@ def L3VpnTableInteract(query,commit,query_string=None):
     PeWanIPAddress = '10.0.1.9'
     CeWanIPAddress = '10.0.1.10'
     ManageInterface='Gi0/0.903'
-    ManagementIp='172.16.0.6'
+    ManagementIp='172.16.1.9'
     Cir='25'
     Switch='zur01ceSW01'
     SwitchInterface='Gi0/3'
@@ -152,7 +152,7 @@ def L3VpnTableInteract(query,commit,query_string=None):
                     PeWanIPAddress,
                     CeWanIPAddress,
                     ManageInterface,
-                    ManagementIp,Vlan,
+                    ManagementIp,
                     Cir,Switch,SwitchInterface,
 
                     )

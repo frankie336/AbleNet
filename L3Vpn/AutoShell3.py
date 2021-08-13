@@ -168,8 +168,15 @@ class LoadDataToList(FormalAutoShellInterface):
         wan_int = 'interface '+service_provision_dict['pe_interface']
         des_wan_int = 'description '+service_provision_dict['service_name']
         assg_vrf = 'vrf forwarding '+service_provision_dict['service_name']
-        encap = 'encapsulation dot1Q '+service_provision_dict['vlan']
+        encap = 'encapsulation dot1Q '+service_provision_dict['wan_vlan']
         wan_ip_addr = 'ip address '+service_provision_dict['pe_wan_ip']+' 255.255.255.252'
+        """
+        Configure managment interface
+        """
+        man_int = 'interface '+service_provision_dict['management_interface']
+        l3dotq = 'encapsulation dot1Q '+service_provision_dict['man_vlan']
+        man_ip_addr = 'ip address ' + service_provision_dict['management_ip'] + ' 255.255.255.252'
+        man_int_vrf = 'ip vrf forwarding vpn00001'
         """
         Configure bgp
         """
@@ -197,6 +204,7 @@ class LoadDataToList(FormalAutoShellInterface):
                     wan_int,des_wan_int,encap,wan_ip_addr,'exit',
                     rtrbgp,vpn4,redistcon,rediststat,v4neigh,as_verride,
                     desv4eigh,v4pass,exitvpn4,'exit',
+                    man_int,l3dotq,man_int_vrf,man_ip_addr
 
                     ]
 
@@ -381,7 +389,7 @@ class ChannelClass(LoadDataToList):
         print(pe_device_dict)
         pe_ip = pe_device_dict['management_ip']
         host_name = pe_device_dict['host_name']
-        #self.l3vpn_shell(host_ip=pe_ip)
+        self.l3vpn_shell(host_ip=pe_ip)
         """
         L2
         """

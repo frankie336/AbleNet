@@ -67,7 +67,7 @@ class RunSqlQuery(FormalQueryServiceInterface):
                                      'route_target': vpn_obj.Rt, 'import_vpn': vpn_obj.ImportVpn,
                                      'customer_routes': vpn_obj.Routes, 'customer_next_hop': vpn_obj.CustomerNextHop,
                                      'ce_switch': vpn_obj.Switch, 'ce_switch_interface': vpn_obj.SwitchInterface,
-                                     'vlan': vpn_obj.Vlan, 'Cir': vpn_obj.Cir
+                                     'Cir': vpn_obj.Cir
 
                                      }
 
