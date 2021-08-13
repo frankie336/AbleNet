@@ -21,7 +21,7 @@ custom local modules
 from GeneratePassword import PassWordGen
 
 #engine = create_engine('sqlite:///:memory:', echo=True)#For local ManagementIping
-engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet/",echo = True)
+engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet",echo = True)
 
 
 Base = declarative_base()
@@ -90,40 +90,6 @@ def CreateL3Vpn(query,query_string,commit,SerViceName,CustomerName,
     Session = sessionmaker(bind=engine)
     session = Session()
     session.add(vpn)
-
-    """
-    Use this block for queries
-    """
-    if query ==True:
-
-
-        from sqlalchemy import select
-
-        stmt = select(L3Vpn).where(L3Vpn.SerViceName == query_string)
-        result = session.execute(stmt)
-
-        for vpn_obj in result.scalars():
-            srvice_provision_dict = {'service_name':vpn_obj.SerViceName,'customer_name':vpn_obj.CustomerName,
-                                     'Status':vpn_obj.Status,'provider_edge':vpn_obj.ProviderEdge,
-                                     'pe_interface':vpn_obj.PeInterface,'pe_wan_ip':vpn_obj.PeWanIPAddress,
-                                     'ce_wan_ip':vpn_obj.CeWanIPAddress,'management_interface':vpn_obj.ManageInterface,
-                                     'management_ip':vpn_obj.ManagementIp,'as_number':vpn_obj.AsNumber,
-                                     'bgp_password':vpn_obj.BgpPassword,'route_distinguisher':vpn_obj.Rd,
-                                     'route_target':vpn_obj.Rt,'import_vpn':vpn_obj.ImportVpn,
-                                     'customer_routes':vpn_obj.Routes,'customer_next_hop':vpn_obj.CustomerNextHop,
-                                     'ce_switch':vpn_obj.Switch,'ce_switch_interface':vpn_obj.SwitchInterface,
-                                     'vlan':vpn_obj.Vlan,'Cir':vpn_obj.Cir
-
-                                     }
-
-
-
-        return srvice_provision_dict
-
-
-
-
-
 
     """
     use this block to commit new services

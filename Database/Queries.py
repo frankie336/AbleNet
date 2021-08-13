@@ -10,7 +10,6 @@ import abc
 
 Base = automap_base()
 engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet",echo = True)
-#engine = create_engine("sqlite:///mydatabase.db")
 Base.prepare(engine, reflect=True)
 
 
@@ -19,7 +18,10 @@ class FormalQueryServiceInterface(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return (hasattr(subclass, 'query_l3vpn_data') and
-                callable(subclass.load_vpn_data) or
+                callable(subclass.load_vpn_data) and
+                hasattr(subclass, 'query_device') and
+                callable(subclass.query_device) or
+
                 NotImplemented)
 
 
@@ -28,7 +30,18 @@ class FormalQueryServiceInterface(metaclass=abc.ABCMeta):
     def query_l3vpn_data(self, service_name: str):
         """Query L3vpn data"""
         raise NotImplementedError
-    
+
+    @abc.abstractmethod
+    def query_device(self, device_name: str):
+        """Query physical device"""
+        raise NotImplementedError
+
+
+
+
+
+
+
 class RunSqlQuery(FormalQueryServiceInterface):
     def __init__(self):
 
@@ -61,18 +74,14 @@ class RunSqlQuery(FormalQueryServiceInterface):
         return service_provision_dict
 
 
-    def main(self):
+    def query_device(self, device_name: str):
+        """Query physical device"""
+        device = Base.classes.devices
+        stmt = select(vpn).where(vpn.SerViceName == device_name)
+        result = self.session.execute(stmt)
 
-        test = self.query_l3vpn_data(service_name='vpn00005')
-
-        print(test)
 
 
-
-if __name__ == "__main__":
-
-    a = RunSqlQuery()
-    a.main()
 
 
 

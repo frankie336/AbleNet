@@ -29,6 +29,7 @@ from io import StringIO
 
 from Database.L3VpnTable import L3VpnTableInteract
 from Database.DevicesTable import DeviceTableInteract
+from Database.Queries import RunSqlQuery
 
 
 class FormalAutoShellInterface(metaclass=abc.ABCMeta):
@@ -38,8 +39,12 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 callable(subclass.load_vpn_data) and
                 hasattr(subclass, 'term_zero') and
                 callable(subclass.term_zero) and
-                hasattr(subclass, 'uni_shell') and
-                callable(subclass.uni_shell) and
+                hasattr(subclass, 'l3vpn_shell') and
+                callable(subclass.l3vpn_shell) and
+
+                hasattr(subclass, 'layer2_shell') and
+                callable(subclass.layer2_shell) and
+
                 hasattr(subclass, 'cios_build_vpn') and
                 callable(subclass.ciscoios_build_vpn) and
                 hasattr(subclass, 'find_ipv4') and
@@ -48,7 +53,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
 
     @abc.abstractmethod
-    def load_vpn_data(self):
+    def load_vpn_data(self,query_string: str):
         """Load the vpn data from sql query"""
         raise NotImplementedError
 
@@ -58,8 +63,13 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def uni_shell(self, host_ip: str):
-        """Univeral SSH conection"""
+    def l3vpn_shell(self, host_ip: str):
+        """Make changes on PE device"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def layer2_shell(self, host_ip: str):
+        """Make changes on CE switch"""
         raise NotImplementedError
 
 
@@ -77,9 +87,12 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
 class LoadDataToList(FormalAutoShellInterface):
 
-    def load_vpn_data(self):
+    def load_vpn_data(self,query_string: str):
         """Load the vpn data from sql query"""
-        service_provision_dict = L3VpnTableInteract(query=True, commit=False)
+
+        query = RunSqlQuery()
+        service_provision_dict = query.query_l3vpn_data(service_name=query_string)
+
         return service_provision_dict
 
 
@@ -104,8 +117,7 @@ class LoadDataToList(FormalAutoShellInterface):
     def cios_build_vpn(self):
         """Builds Cisco IOS MPLS VPN"""
 
-        service_provision_dict = L3VpnTableInteract(query=True, commit=False,query_string='vpn00005')
-
+        service_provision_dict = self.load_vpn_data(query_string='vpn00005')
         print(service_provision_dict)
 
         type1_rd = service_provision_dict['as_number']+':'+service_provision_dict['route_distinguisher']#One time definition of rd/rt
@@ -206,8 +218,8 @@ class ChannelClass(LoadDataToList):
 
 
 
-    def uni_shell(self, host_ip: str):
-        """Univeral SSH conection"""
+    def l3vpn_shell(self, host_ip: str):
+        """Make changes on PE device"""
 
 
         terminal_length = self.term_zero(device_id='cisco')
@@ -239,7 +251,8 @@ class ChannelClass(LoadDataToList):
         """
         special case for adding multiple customer routes
         """
-        service_provision_dict = L3VpnTableInteract(query=True, commit=False,query_string='vpn00005')
+        service_provision_dict = self.load_vpn_data(query_string='vpn00005')
+
         customer_routes = service_provision_dict['customer_routes']
         customer_routes ='10.10.10.0 255.255.255.0,10.20.20.20.0 255.255.255.0'
         found_routes = self.find_ipv4(input_string=customer_routes)
@@ -249,6 +262,9 @@ class ChannelClass(LoadDataToList):
         for x in found_routes:
             time.sleep(.1)
             channel.sendall('ip route vrf '+ipv4vrf+' '+x+' '+ipv4next_hop+"\n")
+
+        channel.sendall('end \n')
+        channel.sendall('write memory\n')
 
 
 
@@ -264,6 +280,11 @@ class ChannelClass(LoadDataToList):
         #print('Succesfull connection to ' + host_name + ' at IP address:' + host_ip)
 
 
+    def layer2_shell(self, host_ip: str):
+        """Make changes on CE switch"""
+        pass
+
+
 
     def main(self):
 
@@ -271,7 +292,7 @@ class ChannelClass(LoadDataToList):
         pe_ip = pe_device['management_ip']
         host_name = pe_device['host_name']
 
-        self.uni_shell(host_ip=pe_ip)
+        self.l3vpn_shell(host_ip=pe_ip)
 
 
 
