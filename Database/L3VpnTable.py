@@ -20,7 +20,7 @@ custom local modules
 ###
 from GeneratePassword import PassWordGen
 
-#engine = create_engine('sqlite:///:memory:', echo=True)#For local ManagementIping
+#engine = create_engine('sqlite:///:memory:', echo=True)#For local PeManagementWanIp ing
 engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet",echo = True)
 
 
@@ -48,14 +48,16 @@ class L3Vpn(Base):
     PeWanIPAddress = Column(String(50))  # 10.100.100.1 255.255.255.252
     CeWanIPAddress = Column(String(50))  # 10.100.100.2 255.255.255.252
     ManageInterface=Column(String(50))#Gi0/0.903
-    ManagementIp = Column(String(50))#172.16.0.0/16
+    PeManagementWanIp = Column(String(50))#172.16.0.0/16
+    CeManagementWanIp = Column(String(50))#172.16.1.10
+    CeLoopback = Column(String(50))#172.16.0.6
     Cir = Column(String(50))#50mbps
     Switch = Column(String(50))#zur01ceSW01
     SwitchInterface = Column(String(50))#Gi0/0
 
     #def __repr__(self):
-        #return "<PE(SerViceName='%s',CustomerName='%s',CustomerAddress='%s',Status='%s', ProviderEdge='%s',AsNumber='%s',BgpPassword='%s',Rd='%s',Rt='%s',ImportVpn='%s',Routes='%s',PeInterface='s%',ManageInterface='%s',ManagementIp='%s',Vlan='%s',Cir='%s',Switch='%s',SwitchInterface='%s')>" % (
-            #self.SerViceName, self.CustomerName,self.CustomerName,self.CustomerAddress,self.Status,self.ProviderEdge,self.AsNumber,self.BgpPassword,self.Rd,self.Rt,self.ImportVpn,self.Routes,self.PeInterface,self.ManageInterface,self.ManagementIp,self.Vlan,self.Vlan,self.Cir,self.Switch,self.SwitchInterface)
+        #return "<PE(SerViceName='%s',CustomerName='%s',CustomerAddress='%s',Status='%s', ProviderEdge='%s',AsNumber='%s',BgpPassword='%s',Rd='%s',Rt='%s',ImportVpn='%s',Routes='%s',PeInterface='s%',ManageInterface='%s',PeManagementWanIp ='%s',Vlan='%s',Cir='%s',Switch='%s',SwitchInterface='%s')>" % (
+            #self.SerViceName, self.CustomerName,self.CustomerName,self.CustomerAddress,self.Status,self.ProviderEdge,self.AsNumber,self.BgpPassword,self.Rd,self.Rt,self.ImportVpn,self.Routes,self.PeInterface,self.ManageInterface,self.PeManagementWanIp ,self.Vlan,self.Vlan,self.Cir,self.Switch,self.SwitchInterface)
 
 
 
@@ -67,7 +69,10 @@ def CreateL3Vpn(query,query_string,commit,SerViceName,CustomerName,
                 PeInterface,WanVlan,ManVlan,
                 PeWanIPAddress,
                 CeWanIPAddress,
-                ManageInterface,ManagementIp,
+                ManageInterface,
+                PeManagementWanIp,
+                CeManagementWanIp,
+                CeLoopback,
                 Cir,Switch,
                 SwitchInterface,
                 ):
@@ -85,7 +90,9 @@ def CreateL3Vpn(query,query_string,commit,SerViceName,CustomerName,
                 WanVlan=WanVlan,ManVlan=ManVlan,
                 PeWanIPAddress=PeWanIPAddress,CeWanIPAddress=CeWanIPAddress,
                 ManageInterface=ManageInterface,
-                ManagementIp=ManagementIp,Cir=Cir,
+                PeManagementWanIp=PeManagementWanIp,
+                CeManagementWanIp=CeManagementWanIp,
+                CeLoopback=CeLoopback,Cir=Cir,
                 Switch=Switch,SwitchInterface=SwitchInterface
                 )
 
@@ -135,7 +142,9 @@ def L3VpnTableInteract(query,commit,query_string=None):
     PeWanIPAddress = '10.0.1.9'
     CeWanIPAddress = '10.0.1.10'
     ManageInterface='Gi0/0.903'
-    ManagementIp='172.16.1.9'
+    PeManagementWanIp ='172.16.1.9'
+    CeManagementWanIp = '172.16.1.10'
+    CeLoopback='172.16.0.6'
     Cir='25'
     Switch='zur01ceSW01'
     SwitchInterface='Gi0/3'
@@ -152,10 +161,13 @@ def L3VpnTableInteract(query,commit,query_string=None):
                     PeWanIPAddress,
                     CeWanIPAddress,
                     ManageInterface,
-                    ManagementIp,
-                    Cir,Switch,SwitchInterface,
+                    PeManagementWanIp,
+                    CeManagementWanIp,
+                    CeLoopback,
+                    Cir,Switch,
+                    SwitchInterface)
 
-                    )
+
 
 
     return srvice_provision_dict

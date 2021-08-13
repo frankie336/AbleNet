@@ -61,12 +61,14 @@ class RunSqlQuery(FormalQueryServiceInterface):
                                      'Status': vpn_obj.Status, 'provider_edge': vpn_obj.ProviderEdge,
                                      'pe_interface': vpn_obj.PeInterface,'wan_vlan':vpn_obj.WanVlan,
                                       'man_vlan':vpn_obj.ManVlan,'pe_wan_ip': vpn_obj.PeWanIPAddress,
-                                      'ce_wan_ip': vpn_obj.CeWanIPAddress,'management_interface': vpn_obj.ManageInterface,
-                                     'management_ip': vpn_obj.ManagementIp, 'as_number': vpn_obj.AsNumber,
-                                     'bgp_password': vpn_obj.BgpPassword, 'route_distinguisher': vpn_obj.Rd,
-                                     'route_target': vpn_obj.Rt, 'import_vpn': vpn_obj.ImportVpn,
-                                     'customer_routes': vpn_obj.Routes, 'customer_next_hop': vpn_obj.CustomerNextHop,
-                                     'ce_switch': vpn_obj.Switch, 'ce_switch_interface': vpn_obj.SwitchInterface,
+                                      'ce_wan_ip': vpn_obj.CeWanIPAddress,'management_interface':vpn_obj.ManageInterface,
+                                     'management_ip':vpn_obj.PeManagementWanIp,'ce_manwan_ip':vpn_obj.CeManagementWanIp,
+                                      'ce_man_ip':vpn_obj.CeLoopback,'as_number':vpn_obj.AsNumber,
+                                      'bgp_password': vpn_obj.BgpPassword,
+                                      'route_distinguisher': vpn_obj.Rd,'route_target': vpn_obj.Rt,
+                                      'import_vpn': vpn_obj.ImportVpn,'customer_routes': vpn_obj.Routes,
+                                      'customer_next_hop': vpn_obj.CustomerNextHop,'ce_switch': vpn_obj.Switch,
+                                      'ce_switch_interface': vpn_obj.SwitchInterface,
                                      'Cir': vpn_obj.Cir
 
                                      }

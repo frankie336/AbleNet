@@ -37,7 +37,6 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
     def __subclasshook__(cls, subclass):
         return (hasattr(subclass, 'load_l3vpn_data') and
                 callable(subclass.load_l3vpn_data) and
-
                 hasattr(subclass, 'load_device_data') and
                 callable(subclass.load_device_data) and
                 hasattr(subclass, 'term_zero') and
@@ -46,14 +45,10 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 callable(subclass.l3vpn_shell) and
                 hasattr(subclass, 'layer2_shell') and
                 callable(subclass.layer2_shell) and
-
                 hasattr(subclass, 'cios_build_l3vpn') and
                 callable(subclass.ciscoios_build_vpn) and
-
                 hasattr(subclass, 'cios_build_l2') and
                 callable(subclass.ciscoios_build_l2) and
-
-
                 hasattr(subclass, 'find_ipv4') and
                 callable(subclass.find_ipv4) or
                 NotImplemented)
@@ -180,7 +175,7 @@ class LoadDataToList(FormalAutoShellInterface):
         """
         Configure bgp
         """
-        v4neighbor = service_provision_dict['ce_wan_ip']#One time neighbour deginition
+        v4neighbor = service_provision_dict['ce_wan_ip']#One time neighbour definition
         rtrbgp = 'router bgp 65000'
         vpn4 = 'address-family ipv4 vrf '+service_provision_dict['service_name']
         redistcon = 'redistribute connected'
@@ -190,7 +185,14 @@ class LoadDataToList(FormalAutoShellInterface):
         v4pass = 'neighbor '+v4neighbor+' password '+service_provision_dict['bgp_password']
         as_verride = 'neighbor '+v4neighbor+' as-override'
         exitvpn4 = 'exit-address-family'
-
+        """
+        Management domain routing
+        """
+        man_route = 'ip route vrf vpn00001 '+service_provision_dict['ce_man_ip']+' 255.255.255.255 '\
+                    +service_provision_dict['ce_manwan_ip']+' name '+service_provision_dict['service_name']
+        """
+        Customer routes
+        """
         customer_routes = service_provision_dict['customer_routes']  # special case for finding multiple routes
         customer_routes ='10.100.100.0 255.255.255.0,10.200.200.0 255.255.255.0'
         found_routes = self.find_ipv4(input_string=customer_routes)
@@ -204,7 +206,8 @@ class LoadDataToList(FormalAutoShellInterface):
                     wan_int,des_wan_int,encap,wan_ip_addr,'exit',
                     rtrbgp,vpn4,redistcon,rediststat,v4neigh,as_verride,
                     desv4eigh,v4pass,exitvpn4,'exit',
-                    man_int,l3dotq,man_int_vrf,man_ip_addr
+                    man_int,l3dotq,man_int_vrf,man_ip_addr,'exit',
+                    man_route
 
                     ]
 
@@ -393,10 +396,10 @@ class ChannelClass(LoadDataToList):
         """
         L2
         """
-        ce_switch_dict = self.load_device_data(query_string='zur01ceSW01')
-        print(ce_switch_dict)
-        ce_switch_ip = ce_switch_dict['management_ip']
-        self.layer2_shell(host_ip=ce_switch_ip)
+        #ce_switch_dict = self.load_device_data(query_string='zur01ceSW01')
+        #print(ce_switch_dict)
+        #ce_switch_ip = ce_switch_dict['management_ip']
+        #self.layer2_shell(host_ip=ce_switch_ip)
 
 
 
