@@ -84,8 +84,14 @@ class L3Vpn(db.Model):
         return '<VPN %r>' % self.SerViceName
 
 
-@app.route('/')
+@app.route("/")
 def index():
+
+    tools_links = ['/add_l3vpn4']
+    return render_template("index.html")
+
+@app.route('/add_l3vpn4')
+def add_l3vpn4():
 
     return render_template('add_l3vpn4.html')
 
@@ -178,45 +184,11 @@ def search():
                             SwitchInterface = l3vpn4_attr.SwitchInterface
 
 
-
-
-
-
-
-
-
-
                             )
 
 
 
-
-
-
-
-
-
-
-
-
     return ('Hello World')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@app.route("/about")
-def home():
-    return render_template("about.html")
 
 
 
