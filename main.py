@@ -2,12 +2,14 @@ from flask import  Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from flask import request,redirect,url_for,render_template
+from sqlalchemy import select
 import pymysql
+from sqlalchemy.orm import Session
 pymysql.install_as_MySQLdb()
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet"
 app.debug = True
 
@@ -124,6 +126,91 @@ def post_l3vpn4():
     db.session.commit()
 
     return redirect(url_for('index'))
+
+
+
+@app.route('/push_l3vpn4',methods=['GET','POST'])
+def push_l3vpn4():
+
+    find_l3vpn4 = L3Vpn.query.all()
+
+    return render_template('push_l3vpn4.html')
+
+@app.route('/search',methods=['GET','POST'])
+def search():
+
+    #if request.form =='POST':
+    form = request.form
+    search_vlaue =  form['search_string']
+    print(search_vlaue)
+    search = "%{}%".format(search_vlaue)
+    print(search)
+
+    l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(search)).first()
+
+    l3vpn4_attr.CustomerName
+
+    print(l3vpn4_attr.CustomerName)
+
+    return  render_template('push_l3vpn4.html',
+                            CustomerName=l3vpn4_attr.CustomerName,
+                            CustomerAddress = l3vpn4_attr.CustomerAddress,
+                            Status = l3vpn4_attr.Status,
+                            ProviderEdge = l3vpn4_attr.ProviderEdge,
+                            AsNumber = l3vpn4_attr.AsNumber,
+                            BgpPassword = l3vpn4_attr.BgpPassword,
+                            Rd = l3vpn4_attr.Rd,
+                            Rt = l3vpn4_attr.Rt,
+                            ImportVpn = l3vpn4_attr.ImportVpn,
+                            Routes = l3vpn4_attr.Routes,
+                            CustomerNextHop = l3vpn4_attr.CustomerNextHop,
+                            PeInterface = l3vpn4_attr.PeInterface,
+                            WanVlan = l3vpn4_attr.WanVlan,
+                            ManVlan = l3vpn4_attr.ManVlan,
+                            PeWanIPAddress = l3vpn4_attr.PeWanIPAddress,
+                            CeWanIPAddress = l3vpn4_attr.CeWanIPAddress,
+                            ManageInterface = l3vpn4_attr.ManageInterface,
+                            PeManagementWanIp = l3vpn4_attr.PeManagementWanIp,
+                            CeManagementWanIp = l3vpn4_attr.CeManagementWanIp,
+                            CeLoopback = l3vpn4_attr.CeLoopback,
+                            Cir = l3vpn4_attr.Cir,
+                            Switch = l3vpn4_attr.Switch,
+                            SwitchInterface = l3vpn4_attr.SwitchInterface
+
+
+
+
+
+
+
+
+
+
+                            )
+
+
+
+
+
+
+
+
+
+
+
+
+    return ('Hello World')
+
+
+
+
+
+
+
+
+
+
+
 
 
 

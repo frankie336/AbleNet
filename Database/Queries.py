@@ -54,6 +54,7 @@ class RunSqlQuery(FormalQueryServiceInterface):
 
         vpn = Base.classes.l3_vpn
         stmt = select(vpn).where(vpn.SerViceName == service_name)
+
         result = self.session.execute(stmt)
 
         for vpn_obj in result.scalars():
