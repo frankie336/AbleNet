@@ -206,7 +206,9 @@ class LoadDataToList(FormalAutoShellInterface):
                     wan_int,des_wan_int,encap,wan_ip_addr,'exit',
                     rtrbgp,vpn4,redistcon,rediststat,v4neigh,as_verride,
                     desv4eigh,v4pass,exitvpn4,'exit',
-                    man_int,l3dotq,man_int_vrf,man_ip_addr,'exit',
+
+                    man_int,des_wan_int,
+                    l3dotq,man_int_vrf,man_ip_addr,'exit',
                     man_route
 
                     ]
@@ -396,10 +398,10 @@ class ChannelClass(LoadDataToList):
         """
         L2
         """
-        #ce_switch_dict = self.load_device_data(query_string='zur01ceSW01')
-        #print(ce_switch_dict)
-        #ce_switch_ip = ce_switch_dict['management_ip']
-        #self.layer2_shell(host_ip=ce_switch_ip)
+        ce_switch_dict = self.load_device_data(query_string='zur01ceSW01')
+        print(ce_switch_dict)
+        ce_switch_ip = ce_switch_dict['management_ip']
+        self.layer2_shell(host_ip=ce_switch_ip)
 
 
 
