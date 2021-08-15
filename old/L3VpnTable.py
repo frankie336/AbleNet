@@ -5,7 +5,7 @@ Created on Tue Aug 10 09:10:57 2021
 
 @author: thanosprime
 """
-
+import abc
 import sqlalchemy
 from sqlalchemy import create_engine
 import pymysql
@@ -19,6 +19,20 @@ custom local modules
 """
 ###
 from GeneratePassword import PassWordGen
+
+
+
+class FormalAutoShellInterface(metaclass=abc.ABCMeta):
+
+    pass
+
+
+
+
+
+
+
+
 
 #engine = create_engine('sqlite:///:memory:', echo=True)#For local PeManagementWanIp ing
 engine = create_engine("mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet",echo = True)

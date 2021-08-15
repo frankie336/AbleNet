@@ -27,7 +27,7 @@ import os
 import pandas as pd
 from io import StringIO
 
-from Database.L3VpnTable import L3VpnTableInteract
+
 from Database.DevicesTable import DeviceTableInteract
 from Database.Queries import RunSqlQuery
 
