@@ -277,8 +277,8 @@ class ChannelClass(LoadDataToList):
 
     def __init__(self):
         self.date_time = datetime.datetime.now().strftime("%Y-%m-%d")
-        self.username = username
-        self.password = password
+        self.username = 'cisco'
+        self.password = 'cisco'
 
 
 
@@ -290,7 +290,7 @@ class ChannelClass(LoadDataToList):
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host_ip, port=22, username=self.username, password=password, look_for_keys=False, timeout=None)
+            ssh.connect(host_ip, port=22, username=self.username, password=self.password, look_for_keys=False, timeout=None)
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
@@ -348,7 +348,7 @@ class ChannelClass(LoadDataToList):
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host_ip, port=22, username=self.username, password=password, look_for_keys=False, timeout=None)
+            ssh.connect(host_ip, port=22, username=self.username, password=self.password, look_for_keys=False, timeout=None)
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
@@ -383,9 +383,7 @@ class ChannelClass(LoadDataToList):
 
 
 
-
-
-    def main(self):
+    def changes(self):
 
         """
         L3
@@ -407,10 +405,3 @@ class ChannelClass(LoadDataToList):
 
 
 
-
-if __name__ == "__main__":
-    username = 'cisco'#Enter network device username temp solution
-    password = 'cisco' #temp solution
-    a = ChannelClass()
-    #a. HyperShell()
-    a.main()

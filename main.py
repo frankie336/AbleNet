@@ -1,3 +1,4 @@
+
 from flask import  Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -87,8 +88,8 @@ class L3Vpn(db.Model):
 @app.route("/")
 def index():
 
-    tools_links = ['/add_l3vpn4']
-    return render_template("index.html")
+    links = ['/add_l3vpn4','/verify_l3vpn4']
+    return render_template("index.html",tools_links=links)
 
 @app.route('/add_l3vpn4')
 def add_l3vpn4():
@@ -135,12 +136,43 @@ def post_l3vpn4():
 
 
 
-@app.route('/push_l3vpn4',methods=['GET','POST'])
-def push_l3vpn4():
+@app.route('/verify_l3vpn4',methods=['GET','POST'])
+def verify_l3vpn4():
 
     find_l3vpn4 = L3Vpn.query.all()
 
-    return render_template('push_l3vpn4.html')
+    return render_template('verify_l3vpn4.html')
+
+
+@app.route('/provision_l3vpn4',methods=['GET','POST'])
+def post_provision_l3vpn4():
+
+    form = request.form
+    search_vlaue = form['search_string']
+    print(search_vlaue)
+
+    from L3Vpn.AutoShell3 import ChannelClass
+
+    activate = ChannelClass()
+
+    activate.changes()
+
+
+
+
+    return render_template('provision_l3vpn4.html')
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/search',methods=['GET','POST'])
 def search():
@@ -158,7 +190,7 @@ def search():
 
     print(l3vpn4_attr.CustomerName)
 
-    return  render_template('push_l3vpn4.html',
+    return  render_template('verify_l3vpn4.html',
                             CustomerName=l3vpn4_attr.CustomerName,
                             CustomerAddress = l3vpn4_attr.CustomerAddress,
                             Status = l3vpn4_attr.Status,
