@@ -28,7 +28,6 @@ import pandas as pd
 from io import StringIO
 
 
-from Database.DevicesTable import DeviceTableInteract
 from Database.Queries import RunSqlQuery
 
 
@@ -286,10 +285,11 @@ class LoadDataToList(FormalAutoShellInterface):
 class ChannelClass(LoadDataToList):
     count_cores = psutil.cpu_count(logical=True)  # Count number of cores/threads in CPU
 
-    def __init__(self):
+    def __init__(self,user_name,password,enable_pass):
         self.date_time = datetime.datetime.now().strftime("%Y-%m-%d")
-        self.username = 'cisco'
-        self.password = 'cisco'
+        self._user_name = user_name
+        self._password = password
+        self._enable_pass = enable_pass
 
 
 
@@ -301,7 +301,7 @@ class ChannelClass(LoadDataToList):
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host_ip, port=22, username=self.username, password=self.password, look_for_keys=False, timeout=None)
+            ssh.connect(host_ip, port=22, username=self._user_name, password=self.password, look_for_keys=False, timeout=None)
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
@@ -312,7 +312,7 @@ class ChannelClass(LoadDataToList):
 
         channel.sendall('enable\n')
         time.sleep(.2)
-        channel.sendall('cisco\n')#Need a dynamic solution  for password here
+        channel.sendall(self._enable_pass+'\n')#Need a dynamic solution  for password here
         time.sleep(.2)
 
 
@@ -359,7 +359,7 @@ class ChannelClass(LoadDataToList):
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host_ip, port=22, username=self.username, password=self.password, look_for_keys=False, timeout=None)
+            ssh.connect(host_ip, port=22, username=self._user_name, password=self._password, look_for_keys=False, timeout=None)
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
@@ -370,7 +370,7 @@ class ChannelClass(LoadDataToList):
 
         channel.sendall('enable\n')
         time.sleep(.2)
-        channel.sendall('cisco\n')  # Need a dynamic solution  for password here
+        channel.sendall(self._enable_pass+'\n')  # Need a dynamic solution  for password here
         time.sleep(.2)
 
         command_set = self.cios_build_l2()

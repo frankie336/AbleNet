@@ -94,7 +94,11 @@ def index():
 @app.route('/add_l3vpn4')
 def add_l3vpn4():
 
-    return render_template('add_l3vpn4.html')
+    from GeneratePassword import PassWordGen
+
+    bgp_pass = PassWordGen()
+    print(bgp_pass)
+    return render_template('add_l3vpn4.html',bgp_pass=bgp_pass)
 
 
 
@@ -157,11 +161,16 @@ def post_provision_l3vpn4():
 
     form = request.form
     search_vlaue = form['search_string']
+    user_name = form['user_name']
+    password = form['password']
+    enable_pass = form['enable_pass']
     print(search_vlaue)
+    print(user_name)
+    print(password)
 
     from L3Vpn.AutoShell3 import ChannelClass
 
-    activate = ChannelClass()
+    activate = ChannelClass(user_name,password,enable_pass)
     activate.l3vpn4_changes(service_name=search_vlaue)
 
     return redirect(url_for('provision_l3vpn4'))
