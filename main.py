@@ -174,7 +174,7 @@ def post_provision_l3vpn4():
 @app.route('/search',methods=['GET','POST'])
 def search():
 
-    #if request.form =='POST':
+
     form = request.form
     search_vlaue =  form['search_string']
     print(search_vlaue)
@@ -216,9 +216,7 @@ def search():
                             )
 
 
-
     return ('Hello World')
-
 
 
 
