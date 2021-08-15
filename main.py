@@ -225,8 +225,6 @@ def search():
                             )
 
 
-    return ('Hello World')
-
 
 
 
