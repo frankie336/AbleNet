@@ -50,7 +50,10 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 hasattr(subclass, 'cios_build_l2') and
                 callable(subclass.ciscoios_build_l2) and
                 hasattr(subclass, 'find_ipv4') and
-                callable(subclass.find_ipv4) or
+                callable(subclass.find_ipv4) and
+                hasattr(subclass, 'l3vpn4_changes') and
+                callable(subclass.l3vpn4_changes) or
+
                 NotImplemented)
 
 
@@ -72,12 +75,12 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def l3vpn_shell(self, host_ip: str):
-        """Make changes on PE device"""
+        """Make l3vpn4_changes on PE device"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def layer2_shell(self, host_ip: str):
-        """Make changes on CE switch"""
+        """Make l3vpn4_changes on CE switch"""
         raise NotImplementedError
 
 
@@ -96,6 +99,14 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
     def find_ipv4(self, input_string: str):
         """Search for ipv4"""
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def l3vpn4_changes(self, service_name: str):
+        """Brings together vpn4 L2/L3 changes and implements sequentially"""
+        raise NotImplementedError
+
+
+
 
 
 class LoadDataToList(FormalAutoShellInterface):
@@ -284,7 +295,7 @@ class ChannelClass(LoadDataToList):
 
 
     def l3vpn_shell(self, host_ip: str):
-        """Make changes on PE device"""
+        """Make l3vpn4_changes on PE device"""
         terminal_length = self.term_zero(device_id='cisco')
 
         try:
@@ -342,7 +353,7 @@ class ChannelClass(LoadDataToList):
 
 
     def layer2_shell(self, host_ip: str):
-        """Make changes on CE switch"""
+        """Make l3vpn4_changes on CE switch"""
         terminal_length = self.term_zero(device_id='cisco')
 
         try:
@@ -383,12 +394,17 @@ class ChannelClass(LoadDataToList):
 
 
 
-    def changes(self):
+    def l3vpn4_changes(self,service_name: str):
+        """Brings together vpn4 L2/L3 changes and implements sequentially"""
+
+        service_provision_dict = self.load_l3vpn_data(query_string=service_name)
+        provider_edge = service_provision_dict['provider_edge']
+        ce_switch = service_provision_dict['ce_switch']
 
         """
         L3
         """
-        pe_device_dict = self.load_device_data(query_string='zur01PE01')
+        pe_device_dict = self.load_device_data(query_string=provider_edge)
         print(pe_device_dict)
         pe_ip = pe_device_dict['management_ip']
         host_name = pe_device_dict['host_name']
@@ -396,7 +412,7 @@ class ChannelClass(LoadDataToList):
         """
         L2
         """
-        ce_switch_dict = self.load_device_data(query_string='zur01ceSW01')
+        ce_switch_dict = self.load_device_data(query_string=ce_switch)
         print(ce_switch_dict)
         ce_switch_ip = ce_switch_dict['management_ip']
         self.layer2_shell(host_ip=ce_switch_ip)

@@ -145,7 +145,15 @@ def verify_l3vpn4():
 
 
 @app.route('/provision_l3vpn4',methods=['GET','POST'])
+def provision_l3vpn4():
+
+    return render_template('provision_l3vpn4.html')
+
+
+
+@app.route('/post_provision_l3vpn4_new', methods=['POST'])
 def post_provision_l3vpn4():
+
 
     form = request.form
     search_vlaue = form['search_string']
@@ -154,20 +162,9 @@ def post_provision_l3vpn4():
     from L3Vpn.AutoShell3 import ChannelClass
 
     activate = ChannelClass()
+    activate.l3vpn4_changes(service_name=search_vlaue)
 
-    activate.changes()
-
-
-
-
-    return render_template('provision_l3vpn4.html')
-
-
-
-
-
-
-
+    return redirect(url_for('provision_l3vpn4'))
 
 
 
