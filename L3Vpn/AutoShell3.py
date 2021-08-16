@@ -73,7 +73,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def l3vpn_shell(self, host_ip: str):
+    def l3vpn_shell(self, host_ip: str,service_name: str):
         """Make l3vpn4_changes on PE device"""
         raise NotImplementedError
 
@@ -287,21 +287,34 @@ class ChannelClass(LoadDataToList):
 
     def __init__(self,user_name,password,enable_pass):
         self.date_time = datetime.datetime.now().strftime("%Y-%m-%d")
-        self._user_name = user_name
-        self._password = password
-        self._enable_pass = enable_pass
+        self.__user_name = user_name
+        self.__password = password
+        self.__enable_pass = enable_pass
+
+        self.__remote_shell_out = None
+
+
+
+    def set_remote_sell_out(self,val):
+
+        self.__remote_shell_out = val
+
+    def get_remote_sell_out(self):
+
+        return self.__remote_shell_out
 
 
 
 
-    def l3vpn_shell(self, host_ip: str):
+
+    def l3vpn_shell(self, host_ip: str,service_name: str):
         """Make l3vpn4_changes on PE device"""
         terminal_length = self.term_zero(device_id='cisco')
 
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host_ip, port=22, username=self._user_name, password=self.password, look_for_keys=False, timeout=None)
+            ssh.connect(host_ip, port=22, username=self.__user_name, password=self.__password, look_for_keys=False, timeout=None)
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
@@ -312,7 +325,7 @@ class ChannelClass(LoadDataToList):
 
         channel.sendall('enable\n')
         time.sleep(.2)
-        channel.sendall(self._enable_pass+'\n')#Need a dynamic solution  for password here
+        channel.sendall(self.__enable_pass+'\n')#Need a dynamic solution  for password here
         time.sleep(.2)
 
 
@@ -325,13 +338,13 @@ class ChannelClass(LoadDataToList):
         """
         special case for adding multiple customer routes
         """
-        service_provision_dict = self.load_l3vpn_data(query_string='vpn00005')
+        service_provision_dict = self.load_l3vpn_data(query_string=service_name)
 
         customer_routes = service_provision_dict['customer_routes']
-        customer_routes ='10.10.10.0 255.255.255.0,10.20.20.20.0 255.255.255.0'
         found_routes = self.find_ipv4(input_string=customer_routes)
         ipv4vrf = service_provision_dict['service_name']
         ipv4next_hop = service_provision_dict['customer_next_hop']
+
 
         for x in found_routes:
             time.sleep(.1)
@@ -348,8 +361,15 @@ class ChannelClass(LoadDataToList):
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
 
         ssh.close()
-        print(shell_output)
-        #print('Succesfull connection to ' + host_name + ' at IP address:' + host_ip)
+        #print(shell_output)
+
+        self.set_remote_sell_out(shell_output)
+
+        return self.get_remote_sell_out()
+
+
+
+
 
 
     def layer2_shell(self, host_ip: str):
@@ -359,7 +379,7 @@ class ChannelClass(LoadDataToList):
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host_ip, port=22, username=self._user_name, password=self._password, look_for_keys=False, timeout=None)
+            ssh.connect(host_ip, port=22, username=self.__user_name, password=self.__password, look_for_keys=False, timeout=None)
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
@@ -370,7 +390,7 @@ class ChannelClass(LoadDataToList):
 
         channel.sendall('enable\n')
         time.sleep(.2)
-        channel.sendall(self._enable_pass+'\n')  # Need a dynamic solution  for password here
+        channel.sendall(self.__enable_pass+'\n')  # Need a dynamic solution  for password here
         time.sleep(.2)
 
         command_set = self.cios_build_l2()
@@ -388,9 +408,11 @@ class ChannelClass(LoadDataToList):
 
         time.sleep(.2)
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
-
+        print(shell_output )
         ssh.close()
-        print(shell_output)
+
+
+
 
 
 
@@ -402,20 +424,26 @@ class ChannelClass(LoadDataToList):
         ce_switch = service_provision_dict['ce_switch']
 
         """
-        L3
+        Excute L3 config
         """
         pe_device_dict = self.load_device_data(query_string=provider_edge)
         print(pe_device_dict)
         pe_ip = pe_device_dict['management_ip']
         host_name = pe_device_dict['host_name']
-        self.l3vpn_shell(host_ip=pe_ip)
+
+        l3shell = self.l3vpn_shell(host_ip=pe_ip,service_name=service_name)
+
+
         """
-        L2
+        Execute L2 config 
         """
-        ce_switch_dict = self.load_device_data(query_string=ce_switch)
-        print(ce_switch_dict)
-        ce_switch_ip = ce_switch_dict['management_ip']
-        self.layer2_shell(host_ip=ce_switch_ip)
+        #ce_switch_dict = self.load_device_data(query_string=ce_switch)
+        #print(ce_switch_dict)
+        #ce_switch_ip = ce_switch_dict['management_ip']
+        #self.layer2_shell(host_ip=ce_switch_ip)
+        #print(l3shell)
+
+        return l3shell
 
 
 

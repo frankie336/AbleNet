@@ -25,7 +25,7 @@ def test_AutoShell():
     """ """
     from L3Vpn.AutoShell3 import ChannelClass
 
-    activate = ChannelClass(user_name='cisco',password='cisco',enable_pass='cisco')
+    activate = ChannelClass(user_name='cisco', password='cisco', enable_pass='cisco')
     activate.l3vpn4_changes(service_name='vpn00005')
 
 
@@ -34,11 +34,21 @@ def test_GeneratePassword():
     from GeneratePassword import PassWordGen
     print(PassWordGen())
 
+def test_passing_shell():
+
+    from L3Vpn.AutoShell3 import ChannelClass
+    obj1 = ChannelClass(user_name='cisco', password='cisco', enable_pass='cisco')
+    print(obj1.get_remote_sell_out())
+    obj1.set_remote_sell_out('Hello World')
+    print(obj1.get_remote_sell_out())
+
+    obj1.l3vpn4_changes(service_name='vpn00005')
 
 
 if __name__ == "__main__":
     pass
-    test_AutoShell()
+    #test_AutoShell()
     #test_CreateL3vpnTable()
     #test_GeneratePassword()
     #test_CreateDeviceTable()
+    test_passing_shell()

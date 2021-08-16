@@ -26,6 +26,18 @@
     <input type="submit" formaction="/post_provision_l3vpn4_new" value="Provision">&emsp;&emsp;
   </form>
 
+<p></p>
+<h1>Commands Successfully Pushed!</h1>
+{% if l3shell_out %}
+
+{% for shell in l3shell_out %}
+<br>{{ shell }}</br>
+{% endfor %}
+
+
+{% endif %}
+
+
 
 
 </body>

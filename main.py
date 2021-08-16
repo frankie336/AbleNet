@@ -85,6 +85,11 @@ class L3Vpn(db.Model):
         return '<VPN %r>' % self.SerViceName
 
 
+
+very = []
+very2 = ''.join(very)
+
+
 @app.route("/")
 def index():
 
@@ -151,7 +156,18 @@ def verify_l3vpn4():
 @app.route('/provision_l3vpn4',methods=['GET','POST'])
 def provision_l3vpn4():
 
-    return render_template('provision_l3vpn4.html')
+    if len(very) >0:
+        l3shell_out = very
+        l3shell_out = l3shell_out[0].split('\r\n')
+        conf =  l3shell_out.index('PE1#configure terminal')
+        l3shell_out = l3shell_out[conf:]
+        print(conf)
+
+    else:
+        l3shell_out = None
+
+
+    return render_template('provision_l3vpn4.html',l3shell_out =l3shell_out )
 
 
 
@@ -164,14 +180,17 @@ def post_provision_l3vpn4():
     user_name = form['user_name']
     password = form['password']
     enable_pass = form['enable_pass']
-    print(search_vlaue)
-    print(user_name)
-    print(password)
+    #print(search_vlaue)
+    #print(user_name)
+    #print(password)
 
     from L3Vpn.AutoShell3 import ChannelClass
 
     activate = ChannelClass(user_name,password,enable_pass)
-    activate.l3vpn4_changes(service_name=search_vlaue)
+
+    l3shell_out = activate.l3vpn4_changes(service_name=search_vlaue)
+
+    very.append(l3shell_out)
 
     return redirect(url_for('provision_l3vpn4'))
 
@@ -223,8 +242,6 @@ def search():
 
 
                             )
-
-
 
 
 
