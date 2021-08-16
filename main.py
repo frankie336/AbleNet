@@ -93,8 +93,13 @@ very2 = ''.join(very)
 @app.route("/")
 def index():
 
+
     links = ['/add_l3vpn4','/verify_l3vpn4']
+
     return render_template("index.html",tools_links=links)
+
+
+
 
 @app.route('/add_l3vpn4')
 def add_l3vpn4():
@@ -104,6 +109,8 @@ def add_l3vpn4():
     bgp_pass = PassWordGen()
     print(bgp_pass)
     return render_template('add_l3vpn4.html',bgp_pass=bgp_pass)
+
+
 
 
 
@@ -156,18 +163,21 @@ def verify_l3vpn4():
 @app.route('/provision_l3vpn4',methods=['GET','POST'])
 def provision_l3vpn4():
 
+    links = ['/','/verify_l3vpn4']
+
     if len(very) >0:
-        l3shell_out = very
-        l3shell_out = l3shell_out[0].split('\r\n')
-        conf =  l3shell_out.index('PE1#configure terminal')
-        l3shell_out = l3shell_out[conf:]
+        L3remote_sell_out = very
+        L3remote_sell_out = L3remote_sell_out[0].split('\r\n')
+        conf =  L3remote_sell_out.index('PE1#configure terminal')
+        L3remote_sell_out = L3remote_sell_out[conf:]
         print(conf)
 
     else:
-        l3shell_out = None
+        L3remote_sell_out = None
 
 
-    return render_template('provision_l3vpn4.html',l3shell_out =l3shell_out )
+    return render_template('provision_l3vpn4.html',L3remote_sell_out =L3remote_sell_out,
+                           tools_links=links)
 
 
 
@@ -184,15 +194,20 @@ def post_provision_l3vpn4():
     #print(user_name)
     #print(password)
 
-    from L3Vpn.AutoShell3 import ChannelClass
 
-    activate = ChannelClass(user_name,password,enable_pass)
+    if   search_vlaue:
+        from L3Vpn.AutoShell3 import ChannelClass
 
-    l3shell_out = activate.l3vpn4_changes(service_name=search_vlaue)
+        activate = ChannelClass(user_name,password,enable_pass)
 
-    very.append(l3shell_out)
+        l3shell_out = activate.l3vpn4_changes(service_name=search_vlaue)
 
-    return redirect(url_for('provision_l3vpn4'))
+        very.append(l3shell_out)
+
+        return redirect(url_for('provision_l3vpn4'))
+
+    else:
+        return redirect(url_for('provision_l3vpn4')) 
 
 
 
@@ -211,37 +226,42 @@ def search():
 
     l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(search)).first()
 
-    l3vpn4_attr.CustomerName
+    if l3vpn4_attr:
 
-    print(l3vpn4_attr.CustomerName)
+        return  render_template('verify_l3vpn4.html',
+                                CustomerName=l3vpn4_attr.CustomerName,
+                                CustomerAddress = l3vpn4_attr.CustomerAddress,
+                                Status = l3vpn4_attr.Status,
+                                ProviderEdge = l3vpn4_attr.ProviderEdge,
+                                AsNumber = l3vpn4_attr.AsNumber,
+                                BgpPassword = l3vpn4_attr.BgpPassword,
+                                Rd = l3vpn4_attr.Rd,
+                                Rt = l3vpn4_attr.Rt,
+                                ImportVpn = l3vpn4_attr.ImportVpn,
+                                Routes = l3vpn4_attr.Routes,
+                                CustomerNextHop = l3vpn4_attr.CustomerNextHop,
+                                PeInterface = l3vpn4_attr.PeInterface,
+                                WanVlan = l3vpn4_attr.WanVlan,
+                                ManVlan = l3vpn4_attr.ManVlan,
+                                PeWanIPAddress = l3vpn4_attr.PeWanIPAddress,
+                                CeWanIPAddress = l3vpn4_attr.CeWanIPAddress,
+                                ManageInterface = l3vpn4_attr.ManageInterface,
+                                PeManagementWanIp = l3vpn4_attr.PeManagementWanIp,
+                                CeManagementWanIp = l3vpn4_attr.CeManagementWanIp,
+                                CeLoopback = l3vpn4_attr.CeLoopback,
+                                Cir = l3vpn4_attr.Cir,
+                                Switch = l3vpn4_attr.Switch,
+                                SwitchInterface = l3vpn4_attr.SwitchInterface
+                                )
+    else:
 
-    return  render_template('verify_l3vpn4.html',
-                            CustomerName=l3vpn4_attr.CustomerName,
-                            CustomerAddress = l3vpn4_attr.CustomerAddress,
-                            Status = l3vpn4_attr.Status,
-                            ProviderEdge = l3vpn4_attr.ProviderEdge,
-                            AsNumber = l3vpn4_attr.AsNumber,
-                            BgpPassword = l3vpn4_attr.BgpPassword,
-                            Rd = l3vpn4_attr.Rd,
-                            Rt = l3vpn4_attr.Rt,
-                            ImportVpn = l3vpn4_attr.ImportVpn,
-                            Routes = l3vpn4_attr.Routes,
-                            CustomerNextHop = l3vpn4_attr.CustomerNextHop,
-                            PeInterface = l3vpn4_attr.PeInterface,
-                            WanVlan = l3vpn4_attr.WanVlan,
-                            ManVlan = l3vpn4_attr.ManVlan,
-                            PeWanIPAddress = l3vpn4_attr.PeWanIPAddress,
-                            CeWanIPAddress = l3vpn4_attr.CeWanIPAddress,
-                            ManageInterface = l3vpn4_attr.ManageInterface,
-                            PeManagementWanIp = l3vpn4_attr.PeManagementWanIp,
-                            CeManagementWanIp = l3vpn4_attr.CeManagementWanIp,
-                            CeLoopback = l3vpn4_attr.CeLoopback,
-                            Cir = l3vpn4_attr.Cir,
-                            Switch = l3vpn4_attr.Switch,
-                            SwitchInterface = l3vpn4_attr.SwitchInterface
+
+ 
+        return  render_template('verify_l3vpn4.html',match_not_found =True)
 
 
-                            )
+
+
 
 
 

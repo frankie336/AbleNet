@@ -431,7 +431,7 @@ class ChannelClass(LoadDataToList):
         pe_ip = pe_device_dict['management_ip']
         host_name = pe_device_dict['host_name']
 
-        l3shell = self.l3vpn_shell(host_ip=pe_ip,service_name=service_name)
+        L3remote_sell_out = self.l3vpn_shell(host_ip=pe_ip,service_name=service_name)
 
 
         """
@@ -443,7 +443,7 @@ class ChannelClass(LoadDataToList):
         #self.layer2_shell(host_ip=ce_switch_ip)
         #print(l3shell)
 
-        return l3shell
+        return L3remote_sell_out
 
 
 
