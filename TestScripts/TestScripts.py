@@ -23,18 +23,16 @@ def test_CreateDeviceTable():
 
 def test_vpn3build():
     """ """
-    from L3Vpn.AutoShell3 import ChannelClass
+    from L3Vpn.AutoShell3 import Channel
 
-    activate = ChannelClass(user_name='cisco', password='cisco', enable_pass='cisco')
-    activate.build_l3vpn4_changes(service_name='vpn00005')
+    activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
+    activate.build_L3vpn()
 
 def test_vpn3decom():
     """ """
-    from L3Vpn.AutoShell3 import ChannelClass,LoadDataToList
-
-
-    #activate = ChannelClass(user_name='cisco', password='cisco', enable_pass='cisco')
-    #activate.decom_l3vpn4_changes(service_name='vpn00005')
+    from L3Vpn.AutoShell3 import Channel
+    activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
+    activate.decom_L3vpn()
 
 
 
