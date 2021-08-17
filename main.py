@@ -2,7 +2,7 @@
 from flask import  Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-from flask import request,redirect,url_for,render_template
+from flask import request,redirect,url_for,render_template,send_file
 from sqlalchemy import select
 import pymysql
 from sqlalchemy.orm import Session
@@ -96,19 +96,21 @@ def index():
 
     links = ['/add_l3vpn4','/verify_l3vpn4']
 
-    return render_template("index.html",tools_links=links)
+    return render_template("index.html",links=links)
 
 
 
 
 @app.route('/add_l3vpn4')
 def add_l3vpn4():
+    
+    links = ['/', '/verify_l3vpn4']
 
     from GeneratePassword import PassWordGen
 
     bgp_pass = PassWordGen()
     print(bgp_pass)
-    return render_template('add_l3vpn4.html',bgp_pass=bgp_pass)
+    return render_template('add_l3vpn4.html',bgp_pass=bgp_pass,links=links)
 
 
 
@@ -155,15 +157,24 @@ def post_l3vpn4():
 @app.route('/verify_l3vpn4',methods=['GET','POST'])
 def verify_l3vpn4():
 
+    links = ['/', '/verify_l3vpn4']
+
     find_l3vpn4 = L3Vpn.query.all()
 
-    return render_template('verify_l3vpn4.html')
+    return render_template('verify_l3vpn4.html',links=links)
 
 
 @app.route('/provision_l3vpn4',methods=['GET','POST'])
 def provision_l3vpn4():
 
     links = ['/','/verify_l3vpn4']
+
+    import random
+    urls = [
+        'http://www.w3schools.com',
+    ]
+
+    iframe = '/index.html'
 
     if len(very) >0:
         L3remote_sell_out = very
@@ -177,7 +188,7 @@ def provision_l3vpn4():
 
 
     return render_template('provision_l3vpn4.html',L3remote_sell_out =L3remote_sell_out,
-                           tools_links=links)
+                           links=links,iframe=iframe)
 
 
 
@@ -217,6 +228,8 @@ def post_provision_l3vpn4():
 @app.route('/search',methods=['GET','POST'])
 def search():
 
+    links = ['/', '/verify_l3vpn4']
+
 
     form = request.form
     search_vlaue =  form['search_string']
@@ -228,7 +241,7 @@ def search():
 
     if l3vpn4_attr:
 
-        return  render_template('verify_l3vpn4.html',
+        return  render_template('verify_l3vpn4.html',links=links,
                                 CustomerName=l3vpn4_attr.CustomerName,
                                 CustomerAddress = l3vpn4_attr.CustomerAddress,
                                 Status = l3vpn4_attr.Status,
@@ -261,6 +274,22 @@ def search():
 
 
 
+@app.route('/show_shell_output')
+def show_shell_output():
+
+    if len(very) > 0:
+        L3remote_sell_out = very
+        L3remote_sell_out = L3remote_sell_out[0].split('\r\n')
+        conf = L3remote_sell_out.index('PE1#configure terminal')
+        L3remote_sell_out = L3remote_sell_out[conf:]
+        print(conf)
+
+    else:
+        L3remote_sell_out = None
+
+
+
+    return render_template('/show_shell_output.html',L3remote_sell_out=L3remote_sell_out)
 
 
 

@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <style>
+.myDiv {
+  border: 5px outset red;
+  background-color: lightblue;
+  text-align: right;
+}
+</style>
     <meta charset="UTF-8">
     <title>L3Vpn4 Service Verify</title>
 
 </head>
 
 <body>
-<a href="{{ tools_links[0] }}">Home</a>&emsp;
+<a href="{{ links[0] }}">Home</a>&emsp;
 <h1>Provision L3Vpn4 Service</h1>
 <p></p>
 
@@ -27,13 +35,13 @@
 
 <p></p>
 
+
+
+
 {% if L3remote_sell_out %}
  <h1>Commands Successfully Pushed!</h1>
 
-  {% for shell in L3remote_sell_out %}
-   <br>{{ shell }}</br>
-  {% endfor %}
-
+<iframe src="http://127.0.0.1:5000/show_shell_output" height="400" width="900" title="Iframe Example"></iframe>
 
 {% endif %}
 

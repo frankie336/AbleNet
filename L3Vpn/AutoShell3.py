@@ -155,8 +155,34 @@ class LoadDataToList(FormalAutoShellInterface):
 
         type1_rd = service_provision_dict['as_number']+':'+service_provision_dict['route_distinguisher']#One time definition of rd/rt
 
+
         """
-        make vrf
+        CIR POLICING
+        Cir policing templates are already present on the
+        PE. Thus, we need to point this script to the correct
+        template by matching the Cir entered on the database
+        """
+
+        if service_provision_dict['Cir'] =='16':
+            service_policy = 'police_16mbps'
+
+        if service_provision_dict['Cir'] =='59':
+            service_policy = 'police_59mbps'
+
+        if service_provision_dict['Cir'] == '118':
+            service_policy = 'police_118mbps'
+
+        if service_provision_dict['Cir'] == '236':
+            service_policy = 'police_236mbps'
+
+        if service_provision_dict['Cir'] == '472':
+            service_policy = 'police_472mbps'
+
+        wan_policer = 'service-policy output ' + service_policy
+
+
+        """
+        VRF
         """
         vrf = 'ip vrf '+service_provision_dict['service_name']
         rd = 'rd '+type1_rd
@@ -165,25 +191,25 @@ class LoadDataToList(FormalAutoShellInterface):
         des_vrf = 'description '+service_provision_dict['customer_name']
 
 
-
-
         """
-        Configure wan Interface
+        WAN INTERFACE   
         """
         wan_int = 'interface '+service_provision_dict['pe_interface']
         des_wan_int = 'description '+service_provision_dict['service_name']
         assg_vrf = 'vrf forwarding '+service_provision_dict['service_name']
         encap = 'encapsulation dot1Q '+service_provision_dict['wan_vlan']
         wan_ip_addr = 'ip address '+service_provision_dict['pe_wan_ip']+' 255.255.255.252'
+
         """
-        Configure managment interface
+        MANAGEMENT INTERFACE
         """
         man_int = 'interface '+service_provision_dict['management_interface']
         l3dotq = 'encapsulation dot1Q '+service_provision_dict['man_vlan']
         man_ip_addr = 'ip address ' + service_provision_dict['management_ip'] + ' 255.255.255.252'
         man_int_vrf = 'ip vrf forwarding vpn00001'
+
         """
-        Configure bgp
+        BGP
         """
         v4neighbor = service_provision_dict['ce_wan_ip']#One time neighbour definition
         rtrbgp = 'router bgp 65000'
@@ -195,13 +221,14 @@ class LoadDataToList(FormalAutoShellInterface):
         v4pass = 'neighbor '+v4neighbor+' password '+service_provision_dict['bgp_password']
         as_verride = 'neighbor '+v4neighbor+' as-override'
         exitvpn4 = 'exit-address-family'
+
         """
-        Management domain routing
+        MANAGEMENT ROUTING 
         """
         man_route = 'ip route vrf vpn00001 '+service_provision_dict['ce_man_ip']+' 255.255.255.255 '\
                     +service_provision_dict['ce_manwan_ip']+' name '+service_provision_dict['service_name']
         """
-        Customer routes
+        CUSTOMER ROUTES
         """
         customer_routes = service_provision_dict['customer_routes']  # special case for finding multiple routes
         customer_routes ='10.100.100.0 255.255.255.0,10.200.200.0 255.255.255.0'
@@ -213,7 +240,7 @@ class LoadDataToList(FormalAutoShellInterface):
 
         commands = ['configure terminal',vrf,rd,rt_ex,rt_imp,des_vrf,'exit',
 
-                    wan_int,des_wan_int,encap,wan_ip_addr,'exit',
+                    wan_int,des_wan_int,encap,wan_ip_addr,wan_policer,'exit',
                     rtrbgp,vpn4,redistcon,rediststat,v4neigh,as_verride,
                     desv4eigh,v4pass,exitvpn4,'exit',
 
@@ -290,7 +317,6 @@ class ChannelClass(LoadDataToList):
         self.__user_name = user_name
         self.__password = password
         self.__enable_pass = enable_pass
-
         self.__remote_shell_out = None
 
 
@@ -364,6 +390,8 @@ class ChannelClass(LoadDataToList):
         #print(shell_output)
 
         self.set_remote_sell_out(shell_output)
+
+        print(self.get_remote_sell_out())
 
         return self.get_remote_sell_out()
 

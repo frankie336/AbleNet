@@ -47,8 +47,8 @@ def test_passing_shell():
 
 if __name__ == "__main__":
     pass
-    #test_AutoShell()
+    test_AutoShell()
     #test_CreateL3vpnTable()
     #test_GeneratePassword()
     #test_CreateDeviceTable()
-    test_passing_shell()
+    #test_passing_shell()
