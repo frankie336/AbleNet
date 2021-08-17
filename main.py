@@ -85,9 +85,7 @@ class L3Vpn(db.Model):
         return '<VPN %r>' % self.SerViceName
 
 
-
-very = []
-very2 = ''.join(very)
+incoming_sell_output = []
 
 
 @app.route("/")
@@ -167,28 +165,10 @@ def verify_l3vpn4():
 @app.route('/provision_l3vpn4',methods=['GET','POST'])
 def provision_l3vpn4():
 
-    links = ['/','/verify_l3vpn4']
+    links = ['/','/verify_l3vpn4','/show_shell_output']
 
-    import random
-    urls = [
-        'http://www.w3schools.com',
-    ]
-
-    iframe = '/index.html'
-
-    if len(very) >0:
-        L3remote_sell_out = very
-        L3remote_sell_out = L3remote_sell_out[0].split('\r\n')
-        conf =  L3remote_sell_out.index('PE1#configure terminal')
-        L3remote_sell_out = L3remote_sell_out[conf:]
-        print(conf)
-
-    else:
-        L3remote_sell_out = None
-
-
-    return render_template('provision_l3vpn4.html',L3remote_sell_out =L3remote_sell_out,
-                           links=links,iframe=iframe)
+    return render_template('provision_l3vpn4.html',
+                           links=links)
 
 
 
@@ -201,19 +181,19 @@ def post_provision_l3vpn4():
     user_name = form['user_name']
     password = form['password']
     enable_pass = form['enable_pass']
-    #print(search_vlaue)
-    #print(user_name)
-    #print(password)
 
 
     if   search_vlaue:
-        from L3Vpn.AutoShell3 import ChannelClass
+        from L3Vpn.AutoShell3 import Channel
 
-        activate = ChannelClass(user_name,password,enable_pass)
+        activate = Channel(servie_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
+        activate.build_L3vpn()
+        l3shell_out = activate.get_remote_sell_out()
+        incoming_sell_output.append(l3shell_out)
 
-        l3shell_out = activate.l3vpn4_changes(service_name=search_vlaue)
 
-        very.append(l3shell_out)
+
+
 
         return redirect(url_for('provision_l3vpn4'))
 
@@ -270,19 +250,19 @@ def search():
 
 
  
-        return  render_template('verify_l3vpn4.html',match_not_found =True)
+        return  render_template('verify_l3vpn4.html',match_not_found =True,links=links)
 
 
 
 @app.route('/show_shell_output')
 def show_shell_output():
 
-    if len(very) > 0:
-        L3remote_sell_out = very
+    if len(incoming_sell_output) > 0:
+        L3remote_sell_out = incoming_sell_output
         L3remote_sell_out = L3remote_sell_out[0].split('\r\n')
         conf = L3remote_sell_out.index('PE1#configure terminal')
         L3remote_sell_out = L3remote_sell_out[conf:]
-        print(conf)
+
 
     else:
         L3remote_sell_out = None

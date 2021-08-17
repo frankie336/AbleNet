@@ -38,10 +38,10 @@
 
 
 
-{% if L3remote_sell_out %}
+{% if links %}
  <h1>Commands Successfully Pushed!</h1>
 
-<iframe src="http://127.0.0.1:5000/show_shell_output" height="400" width="900" title="Iframe Example"></iframe>
+<iframe src="{{ links[2] }}" height="400" width="900" title="Iframe Example"></iframe>
 
 {% endif %}
 

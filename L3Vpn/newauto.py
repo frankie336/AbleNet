@@ -30,26 +30,41 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
     def __subclasshook__(cls, subclass):
         return (hasattr(subclass, 'set_service_dict') and
                 callable(subclass.set_service_dict) and
+
                 hasattr(subclass, 'get_service_dict') and
                 callable(subclass.get_service_dict) and
-                hasattr(subclass, 'cios_pe_build_l3vpn_commands') and
-                callable(subclass.cios_pe_build_l3vpn_commands) and
-                hasattr(subclass, 'l3vpn_pe_shell_session') and
-                callable(subclass.l3vpn_pe_shell_session) and
-                hasattr(subclass, 'layer2_ce_shell_session') and
-                callable(subclass.layer2_ce_shell_session) and
+
+                hasattr(subclass, 'cios_pe_build_l3vpn') and
+                callable(subclass.ciscoios_build_vpn) and
+
+                hasattr(subclass, 'l3vpn_pe_shell') and
+                callable(subclass.l3vpn_pe_shell) and
+
+                # hasattr(subclass, 'load_device_data') and
+                # callable(subclass.load_device_data) and
+                # hasattr(subclass, 'term_zero') and
+                # callable(subclass.term_zero) and
+                # hasattr(subclass, 'l3vpn_pe_shell') and
+                # callable(subclass.l3vpn_pe_shell) and
+                hasattr(subclass, 'layer2_shell') and
+                callable(subclass.layer2_shell) and
+                # hasattr(subclass, 'cios_pe_build_l3vpn') and
+                # callable(subclass.ciscoios_build_vpn) and
+                # hasattr(subclass, 'cios_decom_l3vpn') and
+                # callable(subclass.ciscoios_decom_vpn) and
                 hasattr(subclass, 'cios_ce_switch_build') and
-                callable(subclass.cios_ce_switch_build) and
+                callable(subclass.ciscoios_build_l2) and
                 hasattr(subclass, 'find_ipv4_routes') and
-                callable(subclass.find_ipv4_routes) and
+                callable(subclass.find_ipv4_routes) or
                 hasattr(subclass, 'set_remote_sell_out') and
                 callable(subclass.set_remote_sell_out) and
                 hasattr(subclass, 'get_remote_sell_out') and
                 callable(subclass.get_remote_sell_out) and
-                hasattr(subclass, 'decom_l3vpn4_changes') and
-                callable(subclass.decom_l3vpn4_changes) or
+                # hasattr(subclass, 'build_l3vpn4_changes') and
+                # callable(subclass.build_l3vpn4_changes) and
+                # hasattr(subclass, 'decom_l3vpn4_changes') and
+                # callable(subclass.decom_l3vpn4_changes) or
                 NotImplemented)
-
 
     @abc.abstractmethod
     def set_service_dict(self, query_string: str):
@@ -62,7 +77,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cios_pe_build_l3vpn_commands(self):
+    def cios_pe_build_l3vpn(self):
         """Builds Cisco IOS MPLS L3VPN service on  PE"""
         raise NotImplementedError
 
@@ -72,12 +87,12 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def l3vpn_pe_shell_session(self):
+    def l3vpn_pe_shell(self):
         """Connects to the cli shell of the PE device to make changes"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def layer2_ce_shell_session(self):
+    def layer2_shell(self):
         """Make build_l3vpn4_changes on CE switch"""
         raise NotImplementedError
 
@@ -167,7 +182,7 @@ class BuildService(QueryService):
 
         pass
 
-    def cios_pe_build_l3vpn_commands(self):
+    def cios_pe_build_l3vpn(self):
         """Builds Cisco IOS MPLS L3VPN service"""
 
         """
@@ -300,7 +315,7 @@ class Channel(BuildService):
 
         return self.__remote_shell_out
 
-    def l3vpn_pe_shell_session(self):
+    def l3vpn_pe_shell(self):
         """Connects to the cli shell of the PE device to make changes"""
 
         try:
@@ -319,7 +334,7 @@ class Channel(BuildService):
         channel.sendall('enable\n')
         channel.sendall(self.__enable_pass + '\n')
 
-        command_set = self.cios_pe_build_l3vpn_commands()
+        command_set = self.cios_pe_build_l3vpn()
         """
         Execute the commands from the command set list
         """
@@ -339,9 +354,9 @@ class Channel(BuildService):
 
         ssh.close()
         self.set_remote_sell_out(shell_output)
+        print(self.get_remote_sell_out())
 
-
-    def layer2_ce_shell_session(self):
+    def layer2_shell(self):
         """Make build_l3vpn4_changes on CE switch"""
 
         try:
@@ -373,15 +388,16 @@ class Channel(BuildService):
 
         time.sleep(.2)
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
+        print(shell_output)
         ssh.close()
 
-    def build_L3vpn(self):
+    def main(self):
 
         self.set_service_dict(self.service_name)  # 1
-        self.l3vpn_pe_shell_session()
-        # self.layer2_ce_shell_session()
+        self.l3vpn_pe_shell()
 
+        # self.layer2_shell()
 
 
 a = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
-a.build_L3vpn()
+a.main()
