@@ -20,13 +20,13 @@ def test_CreateDeviceTable():
     CreateDeviceTable()
 
 
-
 def test_vpn3build():
     """ """
     from L3Vpn.AutoShell3 import Channel
 
     activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
     activate.build_layer_three_mpls()
+
 
 def test_vpn3decom():
     """ """
@@ -35,15 +35,14 @@ def test_vpn3decom():
     activate.decom_layer_three_mpls()
 
 
-
 def test_GeneratePassword():
     """ """
     from GeneratePassword import PassWordGen
     print(PassWordGen())
 
-def test_passing_shell():
 
-    from L3Vpn.AutoShell3 import ChannelClass
+def test_passing_shell():
+    from L3Vpn.AutoShell3 import Channel
     obj1 = ChannelClass(user_name='cisco', password='cisco', enable_pass='cisco')
     print(obj1.get_remote_sell_out())
     obj1.set_remote_sell_out('Hello World')
@@ -56,7 +55,7 @@ if __name__ == "__main__":
     pass
     test_vpn3build()
     test_vpn3decom()
-    #test_CreateL3vpnTable()
-    #test_GeneratePassword()
-    #test_CreateDeviceTable()
-    #test_passing_shell()
+    # test_CreateL3vpnTable()
+    # test_GeneratePassword()
+    # test_CreateDeviceTable()
+    # test_passing_shell()

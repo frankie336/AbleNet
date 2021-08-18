@@ -43,7 +43,6 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 hasattr(subclass, 'cios_ce_decom_switch_commands') and
                 callable(subclass.cios_pe_decom_layer_three_mpls_commands) and
 
-
                 hasattr(subclass, 'l3vpn_pe_shell_session') and
                 callable(subclass.l3vpn_pe_shell_session) and
                 hasattr(subclass, 'layer2_ce_shell_session') and
@@ -79,7 +78,6 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
     def cios_pe_decom_layer_three_mpls_commands(self):
         """Removes L3vpn service from PE"""
         raise NotImplementedError
-
 
     @abc.abstractmethod
     def cios_ce_switch_build_commands(self):
@@ -332,17 +330,14 @@ class BuildService(QueryService, ABC):
     def cios_ce_decom_switch_commands(self):
         """Removes L3vpn switch config"""
         select_l2_int = 'interface ' + self.cust_int
-        rem_vlan = 'no switchport access vlan '+self.wan_vlan
-        default_interface = 'default interface '+self.cust_int
+        rem_vlan = 'no switchport access vlan ' + self.wan_vlan
+        default_interface = 'default interface ' + self.cust_int
 
-        commands = ['configure terminal', select_l2_int,rem_vlan,
+        commands = ['configure terminal', select_l2_int, rem_vlan,
                     default_interface
 
                     ]
         return commands
-
-
-
 
 
 class Channel(BuildService):
@@ -476,10 +471,8 @@ class Channel(BuildService):
         """Implements L3vpn changes on PE router and CE switch"""
 
         self.set_service_dict(self.service_name)  # 1
-        #self.l3vpn_pe_shell_session()
+        # self.l3vpn_pe_shell_session()
         self.layer2_ce_shell_session()
-
-
 
     def layer2_ce_decom_shell_session(self):
         """Make build_layer_three_mpls4_changes on CE switch"""
@@ -502,7 +495,7 @@ class Channel(BuildService):
         channel.sendall(self.__enable_pass + '\n')  # Need a dynamic solution  for password here
         time.sleep(.2)
 
-        command_set =  self.cios_ce_decom_switch_commands()
+        command_set = self.cios_ce_decom_switch_commands()
 
         for x in command_set:
             time.sleep(.2)
@@ -516,10 +509,6 @@ class Channel(BuildService):
         ssh.close()
         print(shell_output)
 
-
-
-
-
     def build_layer_three_mpls(self):
         """Implements L3vpn changes on PE router and CE switch"""
 
@@ -527,12 +516,9 @@ class Channel(BuildService):
         self.l3vpn_pe_shell_session()
         self.layer2_ce_shell_session()
 
-
     def decom_layer_three_mpls(self):
         """decomission L3vpn """
 
         self.set_service_dict(self.service_name)
         self.l3vpn_pe_decom_shell_session()
         self.layer2_ce_decom_shell_session()
-
-
