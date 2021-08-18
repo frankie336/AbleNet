@@ -172,6 +172,16 @@ def provision_l3vpn4():
 
 
 
+@app.route('/deactivate_l3vpn4',methods=['GET','POST'])
+def deactivate_l3vpn4():
+
+    links = ['/','/verify_l3vpn4','/show_shell_output']
+
+    return render_template('deactivate_l3vpn4.html',
+                           links=links)
+
+
+
 @app.route('/post_provision_l3vpn4_new', methods=['POST'])
 def post_provision_l3vpn4():
 
@@ -192,13 +202,43 @@ def post_provision_l3vpn4():
         incoming_sell_output.append(l3shell_out)
 
 
-
-
-
         return redirect(url_for('provision_l3vpn4'))
 
     else:
-        return redirect(url_for('provision_l3vpn4')) 
+        return redirect(url_for('provision_l3vpn4'))
+
+
+
+
+@app.route('/post_deactivate_l3vpn4', methods=['POST'])
+def post_deactivate_l3vpn4():
+
+
+    form = request.form
+    search_vlaue = form['search_string']
+    user_name = form['user_name']
+    password = form['password']
+    enable_pass = form['enable_pass']
+
+
+    if   search_vlaue:
+        from L3Vpn.AutoShell3 import Channel
+
+        de_activate = Channel(servie_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
+        de_activate.decom_L3vpn()
+
+        l3shell_out = de_activate.get_remote_sell_out()
+        incoming_sell_output.append(l3shell_out)
+
+
+        return redirect(url_for('deactivate_l3vpn4'))
+
+    else:
+        return redirect(url_for('deactivate_l3vpn4'))
+
+
+
+
 
 
 
@@ -208,7 +248,7 @@ def post_provision_l3vpn4():
 @app.route('/search',methods=['GET','POST'])
 def search():
 
-    links = ['/', '/verify_l3vpn4']
+    links = ['/', '/provision_l3vpn4','/provision_l3vpn4','/deactivate_l3vpn4']
 
 
     form = request.form
@@ -262,6 +302,7 @@ def show_shell_output():
         L3remote_sell_out = L3remote_sell_out[0].split('\r\n')
         conf = L3remote_sell_out.index('PE1#configure terminal')
         L3remote_sell_out = L3remote_sell_out[conf:]
+        #L3remote_sell_out = 'hello'
 
 
     else:

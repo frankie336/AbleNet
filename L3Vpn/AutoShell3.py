@@ -419,7 +419,7 @@ class Channel(BuildService):
         time.sleep(.2)
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
         ssh.close()
-
+        self.set_remote_sell_out(shell_output)
         print(shell_output)
 
 

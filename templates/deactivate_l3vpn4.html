@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <style>
+.myDiv {
+  border: 5px outset red;
+  background-color: lightblue;
+  text-align: right;
+}
+</style>
+    <meta charset="UTF-8">
+    <title>L3Vpn4 Service Verify</title>
+
+</head>
+
+<body>
+<a href="{{ links[0] }}">Home</a>&emsp;
+<h1>Deactivate L3Vpn4 Service</h1>
+<p></p>
+
+
+
+ <form method="POST">
+     <p>ServiceName</p>
+     <p><input type="text" autofocus="autofocus" name="search_string"></p>
+     <p>User Name</p>
+     <p><input type="text" autofocus="autofocus" name="user_name"></p>
+     <p>Password</p>
+      <p><input type="password" autofocus="autofocus" name="password"></p>
+     <p>Enable Mode Password</p>
+     <p><input type="password" autofocus="autofocus" name="enable_pass"></p>
+    <input type="submit" formaction="/post_deactivate_l3vpn4" value="Deactivate">&emsp;&emsp;
+  </form>
+
+<p></p>
+
+
+
+
+{% if links %}
+ <h1>Commands Successfully Pushed!</h1>
+
+<iframe src="{{ links[2] }}" height="400" width="900" title="Iframe Example"></iframe>
+
+{% endif %}
+
+
+
+
+</body>
+</html>
