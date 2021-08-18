@@ -1,3 +1,13 @@
+import abc
+from abc import ABC
+
+import paramiko
+import time
+import re
+import datetime
+import logging
+from Database.Queries import RunSqlQuery
+
 """
 Created on Mon Jan 11 20:08:27 2021
 #! Python 3.8
@@ -14,15 +24,6 @@ of the Hosts.dat file
 2. Enter input commands on each line of
 the Commands.dat file 
 """
-import abc
-import paramiko
-import time
-from multiprocessing.pool import ThreadPool
-import re
-import datetime
-import psutil
-import logging
-from Database.Queries import RunSqlQuery
 
 
 class FormalAutoShellInterface(metaclass=abc.ABCMeta):
@@ -32,33 +33,32 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 callable(subclass.set_service_dict) and
                 hasattr(subclass, 'get_service_dict') and
                 callable(subclass.get_service_dict) and
-                hasattr(subclass, 'cios_pe_build_l3vpn_commands') and
-                callable(subclass.cios_pe_build_l3vpn_commands) and
+                hasattr(subclass, 'cios_pe_build_layer_three_mpls_commands') and
+                callable(subclass.cios_pe_build_layer_three_mpls_commands) and
                 hasattr(subclass, 'cios_ce_switch_build_commands') and
                 callable(subclass.cios_ce_switch_build_commands) and
-                hasattr(subclass, 'cios_pe_decom_l3vpn_commands') and
-                callable(subclass.cios_pe_decom_l3vpn_commands) and
+                hasattr(subclass, 'cios_pe_decom_layer_three_mpls_commands') and
+                callable(subclass.cios_pe_decom_layer_three_mpls_commands) and
+
+                hasattr(subclass, 'cios_ce_decom_switch_commands') and
+                callable(subclass.cios_pe_decom_layer_three_mpls_commands) and
+
+
                 hasattr(subclass, 'l3vpn_pe_shell_session') and
                 callable(subclass.l3vpn_pe_shell_session) and
                 hasattr(subclass, 'layer2_ce_shell_session') and
                 callable(subclass.layer2_ce_shell_session) and
-
                 hasattr(subclass, 'l3vpn_pe_decom_shell_session') and
                 callable(subclass.layer2_ce_decom_shell_session) and
-
                 hasattr(subclass, 'find_ipv4_routes') and
                 callable(subclass.find_ipv4_routes) and
                 hasattr(subclass, 'set_remote_sell_out') and
                 callable(subclass.set_remote_sell_out) and
                 hasattr(subclass, 'get_remote_sell_out') and
                 callable(subclass.get_remote_sell_out) and
-                hasattr(subclass, 'build_L3vpn') and
-                callable(subclass.build_L3vpnld_L3vpn) or
-
-
+                hasattr(subclass, 'build_layer_three_mpls') and
+                callable(subclass.build_layer_three_mpls) or
                 NotImplemented)
-
-
 
     @abc.abstractmethod
     def set_service_dict(self, query_string: str):
@@ -71,18 +71,24 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cios_pe_build_l3vpn_commands(self):
+    def cios_pe_build_layer_three_mpls_commands(self):
         """Builds Cisco IOS MPLS L3VPN service on  PE"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cios_pe_decom_l3vpn_commands(self):
+    def cios_pe_decom_layer_three_mpls_commands(self):
         """Removes L3vpn service from PE"""
         raise NotImplementedError
+
 
     @abc.abstractmethod
     def cios_ce_switch_build_commands(self):
         """Builds Cisco IOS Switching for mpls service"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def cios_ce_decom_switch_commands(self):
+        """Removes L3vpn switch config"""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -97,7 +103,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def layer2_ce_shell_session(self):
-        """Make build_l3vpn4_changes on CE switch"""
+        """Make build_layer_three_mpls4_changes on CE switch"""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -106,7 +112,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_remote_sell_out(self):
+    def set_remote_sell_out(self, val):
         """Sets the remote_shell_out class attribute"""
         raise NotImplementedError
 
@@ -116,18 +122,12 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def build_L3vpn(self):
+    def build_layer_three_mpls(self):
         """Implements L3vpn changes on PE router and CE switch"""
         raise NotImplementedError
 
 
-    @abc.abstractmethod
-    def build_L3vpn(self):
-        """Implements L3vpn changes on PE router and CE switch"""
-        raise NotImplementedError
-
-
-class QueryService(FormalAutoShellInterface):
+class QueryService(FormalAutoShellInterface, ABC):
 
     def __init__(self, service_name):
         self.service_name = service_name
@@ -139,10 +139,18 @@ class QueryService(FormalAutoShellInterface):
         self.rt = None
         self.pe_interface = None
         self.type1_rd = None  # A Type1 route distinguisher
-
         self.provider_edge = None
         self.ce_switch = None
         self.pe_ip = None
+        self.pe_device_dict = {}
+        self.ce_device_dict = {}
+        self.ce_ip = None
+        self.ipv4next_hop = None
+        self.customer_routes = None
+        self.cust_int = None
+        self.extracted_routes = None
+        self.wan_vlan = None
+        self.man_vlan = None
 
     def find_ipv4_routes(self, input_string: str):
         """Search for ipv4 routes in string"""
@@ -191,13 +199,13 @@ class QueryService(FormalAutoShellInterface):
         return self.service_dict
 
 
-class BuildService(QueryService):
+class BuildService(QueryService, ABC):
     def __init__(self, service_name):
         super().__init__(service_name)
 
         pass
 
-    def cios_pe_build_l3vpn_commands(self):
+    def cios_pe_build_layer_three_mpls_commands(self):
         """Builds Cisco IOS MPLS L3VPN service"""
 
         """
@@ -278,13 +286,12 @@ class BuildService(QueryService):
         CUSTOMER ROUTES
         """
         customer_routes = self.service_dict['customer_routes']  # special case for finding multiple routes
-        customer_routes = '10.100.100.0 255.255.255.0,10.200.200.0 255.255.255.0'
 
         # found_routes = self.find_ipv4(input_string=customer_routes)
 
         commands = ['configure terminal', vrf, route_disting, route_ex, route_imp, des_vrf, 'exit',
 
-                    wan_int, des_wan_int,assg_vrf, encap, wan_ip_addr, wan_policer, 'exit',
+                    wan_int, des_wan_int, assg_vrf, encap, wan_ip_addr, wan_policer, 'exit',
                     rtrbgp, vpn4, redistcon, rediststat, v4neigh, as_verride,
                     desv4eigh, v4pass, exitvpn4, 'exit',
 
@@ -295,9 +302,6 @@ class BuildService(QueryService):
                     ]
 
         return commands
-
-
-
 
     def cios_ce_switch_build_commands(self):
         """Builds Cisco IOS Switching for mpls service"""
@@ -314,18 +318,31 @@ class BuildService(QueryService):
 
         return commands
 
-
-    def cios_pe_decom_l3vpn_commands(self):
+    def cios_pe_decom_layer_three_mpls_commands(self):
         """Removes L3vpn service from PE"""
-        rem_vrf = 'no ip vrf '+self.service_name
-        rem_pe_int = 'no interface '+self.pe_interface
+        rem_vrf = 'no ip vrf ' + self.service_name
+        rem_pe_int = 'no interface ' + self.pe_interface
 
+        commands = ['configure terminal', rem_vrf, rem_pe_int,
 
-        commands = ['configure terminal',rem_vrf,rem_pe_int,
-
-                    'end','write memory']
+                    'end', 'write memory']
 
         return commands
+
+    def cios_ce_decom_switch_commands(self):
+        """Removes L3vpn switch config"""
+        select_l2_int = 'interface ' + self.cust_int
+        rem_vlan = 'no switchport access vlan '+self.wan_vlan
+        default_interface = 'default interface '+self.cust_int
+
+        commands = ['configure terminal', select_l2_int,rem_vlan,
+                    default_interface
+
+                    ]
+        return commands
+
+
+
 
 
 class Channel(BuildService):
@@ -338,7 +355,7 @@ class Channel(BuildService):
         self.__enable_pass = enable_pass
         self.__remote_shell_out = None
 
-    def set_remote_sell_out(self,val):
+    def set_remote_sell_out(self, val):
         """Sets the remote_shell_out class attribute"""
         self.__remote_shell_out = val
 
@@ -357,15 +374,15 @@ class Channel(BuildService):
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
-            print(host_ip, e.args)
+            print(self.pe_ip, e.args)
             return
 
-        channel.sendall('terminal length 0 \n')
+        channel.sendall(b'terminal length 0 \n')
         time.sleep(.1)
-        channel.sendall('enable\n')
+        channel.sendall(b'enable\n')
         channel.sendall(self.__enable_pass + '\n')
 
-        command_set = self.cios_pe_build_l3vpn_commands()
+        command_set = self.cios_pe_build_layer_three_mpls_commands()
         """
         Execute the commands from the command set list
         """
@@ -387,8 +404,6 @@ class Channel(BuildService):
         self.set_remote_sell_out(shell_output)
         print(shell_output)
 
-
-
     def l3vpn_pe_decom_shell_session(self):
         """Connects to the cli of PE to decomission l3vpn service"""
         try:
@@ -399,15 +414,15 @@ class Channel(BuildService):
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
-            print(host_ip, e.args)
+            print(self.pe_ip, e.args)
             return
 
-        channel.sendall('terminal length 0 \n')
+        channel.sendall(b'terminal length 0 \n')
         time.sleep(.1)
-        channel.sendall('enable\n')
+        channel.sendall(b'enable\n')
         channel.sendall(self.__enable_pass + '\n')
 
-        command_set = self.cios_pe_decom_l3vpn_commands()
+        command_set = self.cios_pe_decom_layer_three_mpls_commands()
 
         """
         Execute the commands from the command set list
@@ -422,12 +437,8 @@ class Channel(BuildService):
         self.set_remote_sell_out(shell_output)
         print(shell_output)
 
-
-
-
-
     def layer2_ce_shell_session(self):
-        """Make build_l3vpn4_changes on CE switch"""
+        """Make build_layer_three_mpls4_changes on CE switch"""
 
         try:
             ssh = paramiko.SSHClient()
@@ -437,12 +448,12 @@ class Channel(BuildService):
             channel = ssh.get_transport().open_session()
             channel.invoke_shell()
         except Exception as e:
-            print(host_ip, e.args)
+            print(self.pe_ip, e.args)
             return
 
-        channel.sendall('terminal length 0 \n')
+        channel.sendall(b'terminal length 0 \n')
 
-        channel.sendall('enable\n')
+        channel.sendall(b'enable\n')
         time.sleep(.2)
         channel.sendall(self.__enable_pass + '\n')  # Need a dynamic solution  for password here
         time.sleep(.2)
@@ -453,28 +464,75 @@ class Channel(BuildService):
             time.sleep(.2)
             channel.sendall(x + "\n")
 
-        channel.sendall('end \n')
-        channel.sendall('write memory\n')
+        channel.sendall(b'end \n')
+        channel.sendall(b'write memory\n')
 
         time.sleep(.2)
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
         ssh.close()
+        print(shell_output)
+
+    def build_layer_three_mpls(self):
+        """Implements L3vpn changes on PE router and CE switch"""
+
+        self.set_service_dict(self.service_name)  # 1
+        #self.l3vpn_pe_shell_session()
+        self.layer2_ce_shell_session()
 
 
 
-    def build_L3vpn(self):
+    def layer2_ce_decom_shell_session(self):
+        """Make build_layer_three_mpls4_changes on CE switch"""
+
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(self.ce_ip, port=22, username=self.__user_name, password=self.__password, look_for_keys=False,
+                        timeout=None)
+            channel = ssh.get_transport().open_session()
+            channel.invoke_shell()
+        except Exception as e:
+            print(self.pe_ip, e.args)
+            return
+
+        channel.sendall(b'terminal length 0 \n')
+
+        channel.sendall(b'enable\n')
+        time.sleep(.2)
+        channel.sendall(self.__enable_pass + '\n')  # Need a dynamic solution  for password here
+        time.sleep(.2)
+
+        command_set =  self.cios_ce_decom_switch_commands()
+
+        for x in command_set:
+            time.sleep(.2)
+            channel.sendall(x + "\n")
+
+        channel.sendall(b'end \n')
+        channel.sendall(b'write memory\n')
+
+        time.sleep(.2)
+        shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
+        ssh.close()
+        print(shell_output)
+
+
+
+
+
+    def build_layer_three_mpls(self):
         """Implements L3vpn changes on PE router and CE switch"""
 
         self.set_service_dict(self.service_name)  # 1
         self.l3vpn_pe_shell_session()
-        # self.layer2_ce_shell_session()
+        self.layer2_ce_shell_session()
 
 
-    def decom_L3vpn(self):
+    def decom_layer_three_mpls(self):
         """decomission L3vpn """
 
         self.set_service_dict(self.service_name)
         self.l3vpn_pe_decom_shell_session()
-
+        self.layer2_ce_decom_shell_session()
 
 
