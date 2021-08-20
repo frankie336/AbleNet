@@ -1,4 +1,4 @@
-
+from GeneratePassword import password_gen
 from flask import  Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -104,9 +104,9 @@ def add_l3vpn4():
     
     links = ['/', '/verify_l3vpn4']
 
-    from GeneratePassword import PassWordGen
 
-    bgp_pass = PassWordGen()
+
+    bgp_pass = password_gen()
     print(bgp_pass)
     return render_template('add_l3vpn4.html',bgp_pass=bgp_pass,links=links)
 
@@ -197,7 +197,7 @@ def post_provision_l3vpn4():
         from L3Vpn.AutoShell3 import Channel
 
         activate = Channel(servie_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
-        activate.build_L3vpn()
+        activate.build_mpls_three()
         l3shell_out = activate.get_remote_sell_out()
         incoming_sell_output.append(l3shell_out)
 
@@ -225,7 +225,7 @@ def post_deactivate_l3vpn4():
         from L3Vpn.AutoShell3 import Channel
 
         de_activate = Channel(servie_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
-        de_activate.decom_L3vpn()
+        de_activate.decom_mpls_three()
 
         l3shell_out = de_activate.get_remote_sell_out()
         incoming_sell_output.append(l3shell_out)
@@ -316,4 +316,5 @@ def show_shell_output():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='0.0.0.0', port=3000,debug=True)

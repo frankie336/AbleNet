@@ -33,8 +33,8 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 callable(subclass.set_service_dict) and
                 hasattr(subclass, 'get_service_dict') and
                 callable(subclass.get_service_dict) and
-                hasattr(subclass, 'cios_pe_build_layer_three_mpls_commands') and
-                callable(subclass.cios_pe_build_layer_three_mpls_commands) and
+                hasattr(subclass, 'cios_pe_build_mpls_three_commands') and
+                callable(subclass.cios_pe_build_mpls_three_commands) and
                 hasattr(subclass, 'cios_ce_switch_build_commands') and
                 callable(subclass.cios_ce_switch_build_commands) and
                 hasattr(subclass, 'cios_pe_decom_layer_three_mpls_commands') and
@@ -55,8 +55,8 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
                 callable(subclass.set_remote_sell_out) and
                 hasattr(subclass, 'get_remote_sell_out') and
                 callable(subclass.get_remote_sell_out) and
-                hasattr(subclass, 'build_layer_three_mpls') and
-                callable(subclass.build_layer_three_mpls) or
+                hasattr(subclass, 'build_mpls_three') and
+                callable(subclass.build_mpls_three) or
                 NotImplemented)
 
     @abc.abstractmethod
@@ -70,7 +70,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cios_pe_build_layer_three_mpls_commands(self):
+    def cios_pe_build_mpls_three_commands(self):
         """Builds Cisco IOS MPLS L3VPN service on  PE"""
         raise NotImplementedError
 
@@ -90,7 +90,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def l3vpn_pe_shell_session(self):
+    def l3vpn_pe_shell_session(self, session_type: str):
         """Connects to the cli shell of the PE device to make changes"""
         raise NotImplementedError
 
@@ -101,7 +101,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def layer2_ce_shell_session(self):
-        """Make build_layer_three_mpls4_changes on CE switch"""
+        """Make build_mpls_three4_changes on CE switch"""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -120,7 +120,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def build_layer_three_mpls(self):
+    def build_mpls_three(self):
         """Implements L3vpn changes on PE router and CE switch"""
         raise NotImplementedError
 
@@ -149,6 +149,18 @@ class QueryService(FormalAutoShellInterface, ABC):
         self.extracted_routes = None
         self.wan_vlan = None
         self.man_vlan = None
+        self.pe_wan_ip = None
+        self.service_policy = None
+        self.home_as = None
+        self.remote_as = None
+        self.bgpnei = None
+        self.bgp_pass = None
+        self.manage_int = None
+        self.ce_man_ip = None
+        self.pe_man_ip = None
+        self.ce_manwan_ip = None
+
+
 
     def find_ipv4_routes(self, input_string: str):
         """Search for ipv4 routes in string"""
@@ -171,6 +183,18 @@ class QueryService(FormalAutoShellInterface, ABC):
 
         self.provider_edge = self.service_dict['provider_edge']
         self.ce_switch = self.service_dict['ce_switch']
+
+        self.pe_interface = self.service_dict['pe_interface']
+        self.wan_description = self.service_dict['service_name']
+        self.pe_wan_ip = self.service_dict['pe_wan_ip']
+        self.home_as = '65000'
+        self.remote_as = self.service_dict['as_number']
+        self.bgpnei = self.service_dict['ce_wan_ip']
+        self.bgp_pass = self.service_dict['bgp_password']
+        self.manage_int = self.service_dict['management_interface']
+        self.ce_man_ip = self.service_dict['ce_man_ip']
+        self.pe_man_ip = self.service_dict['management_ip']
+        self.ce_manwan_ip = self.service_dict['ce_manwan_ip']
 
         """
         Matches the management IP's of PE and CE devices
@@ -203,7 +227,7 @@ class BuildService(QueryService, ABC):
 
         pass
 
-    def cios_pe_build_layer_three_mpls_commands(self):
+    def cios_pe_build_mpls_three_commands(self):
         """Builds Cisco IOS MPLS L3VPN service"""
 
         """
@@ -219,67 +243,20 @@ class BuildService(QueryService, ABC):
         template by matching the Cir entered on the database
         """
         if self.service_dict['Cir'] == '16':
-            service_policy = 'police_16mbps'
+            self.service_policy = 'police_16mbps'
 
         if self.service_dict['Cir'] == '59':
-            service_policy = 'police_59mbps'
+            self.service_policy = 'police_59mbps'
 
         if self.service_dict['Cir'] == '118':
-            service_policy = 'police_118mbps'
+            self.service_policy = 'police_118mbps'
 
         if self.service_dict['Cir'] == '236':
-            service_policy = 'police_236mbps'
+            self.service_policy = 'police_236mbps'
 
         if self.service_dict['Cir'] == '472':
-            service_policy = 'police_472mbps'
+            self.service_policy = 'police_472mbps'
 
-        wan_policer = 'service-policy output ' + service_policy
-
-        """
-        MAKE CISCO VRF
-        """
-        vrf = 'ip vrf ' + self.service_name
-        route_disting = 'rd ' + self.type1_rd
-        route_ex = 'route-target export ' + self.type1_rd
-        route_imp = 'route-target import ' + self.type1_rd
-        des_vrf = 'description ' + self.custmer_name
-
-        """
-        MAKE CISCO WAN INTERFACE   
-        """
-        wan_int = 'interface ' + self.service_dict['pe_interface']
-        des_wan_int = 'description ' + self.service_dict['service_name']
-        assg_vrf = 'ip vrf forwarding ' + self.service_dict['service_name']
-        encap = 'encapsulation dot1Q ' + self.service_dict['wan_vlan']
-        wan_ip_addr = 'ip address ' + self.service_dict['pe_wan_ip'] + ' 255.255.255.252'
-
-        """
-        MANAGEMENT INTERFACE
-        """
-        man_int = 'interface ' + self.service_dict['management_interface']
-        l3dotq = 'encapsulation dot1Q ' + self.service_dict['man_vlan']
-        man_ip_addr = 'ip address ' + self.service_dict['management_ip'] + ' 255.255.255.252'
-        man_int_vrf = 'ip vrf forwarding vpn00001'
-
-        """
-        BGP
-        """
-        v4neighbor = self.service_dict['ce_wan_ip']  # One time neighbour definition
-        rtrbgp = 'router bgp 65000'
-        vpn4 = 'address-family ipv4 vrf ' + self.service_dict['service_name']
-        redistcon = 'redistribute connected'
-        rediststat = 'redistribute static'
-        v4neigh = 'neighbor ' + v4neighbor + ' remote-as ' + self.service_dict['as_number']
-        desv4eigh = 'neighbor ' + v4neighbor + ' description ' + self.service_dict['service_name']
-        v4pass = 'neighbor ' + v4neighbor + ' password ' + self.service_dict['bgp_password']
-        as_verride = 'neighbor ' + v4neighbor + ' as-override'
-        exitvpn4 = 'exit-address-family'
-
-        """
-        MANAGEMENT ROUTING 
-        """
-        man_route = 'ip route vrf vpn00001 ' + self.service_dict['ce_man_ip'] + ' 255.255.255.255 ' \
-                    + self.service_dict['ce_manwan_ip'] + ' name ' + self.service_dict['service_name']
         """
         CUSTOMER ROUTES
         """
@@ -287,15 +264,46 @@ class BuildService(QueryService, ABC):
 
         # found_routes = self.find_ipv4(input_string=customer_routes)
 
-        commands = ['configure terminal', vrf, route_disting, route_ex, route_imp, des_vrf, 'exit',
+        enablepass = 'cisco'
 
-                    wan_int, des_wan_int, assg_vrf, encap, wan_ip_addr, wan_policer, 'exit',
-                    rtrbgp, vpn4, redistcon, rediststat, v4neigh, as_verride,
-                    desv4eigh, v4pass, exitvpn4, 'exit',
+        commands = ['terminal length 0',
+                    'enable',
+                    enablepass,
+                    'configure terminal',
+                    'ip vrf ' + self.service_name,
+                    'rd ' + self.type1_rd,
+                    'route-target export ' + self.type1_rd,
+                    'route-target import ' + self.type1_rd,
+                    'description ' + self.custmer_name,
+                    'exit',
 
-                    man_int, des_wan_int,
-                    l3dotq, man_int_vrf, man_ip_addr, 'exit',
-                    man_route
+                    'interface ' + self.pe_interface,
+                    'description ' + self.wan_description,
+                    'ip vrf forwarding ' + self.vrf,
+                    'encapsulation dot1Q ' + self.wan_vlan,
+                    'ip address ' + self.pe_wan_ip + ' 255.255.255.252',
+                    'service-policy output ' + self.service_policy,
+                    'exit',
+
+                    'router bgp ' + self.home_as,
+                    'address-family ipv4 vrf ' + self.vrf,
+                    'redistribute static',
+                    'neighbor ' + self.bgpnei + ' remote-as ' + self.remote_as,
+                    'neighbor ' + self.bgpnei + ' as-override',
+                    'neighbor ' + self.bgpnei + ' description ' + self.vrf,
+                    'neighbor ' + self.bgpnei + ' password ' + self.bgp_pass,
+                    'exit-address-family',
+                    'exit',
+
+                    'interface ' + self.manage_int,
+                    'description ' + self.vrf,
+                    'encapsulation dot1Q ' + self.man_vlan,
+                    'ip vrf forwarding vpn00001',
+                    'ip address ' + self.pe_man_ip + ' 255.255.255.252',
+                    'exit',
+                    'ip route vrf vpn00001 ' + self.ce_man_ip + ' 255.255.255.255 ' + self.ce_manwan_ip + ' name ' + self.vrf,
+                    'end',
+                    'write memory'
 
                     ]
 
@@ -320,8 +328,8 @@ class BuildService(QueryService, ABC):
         """Removes L3vpn service from PE"""
         rem_vrf = 'no ip vrf ' + self.service_name
         rem_pe_int = 'no interface ' + self.pe_interface
-
-        commands = ['configure terminal', rem_vrf, rem_pe_int,
+        enablepass = 'cisco'
+        commands = ['terminal length 0', 'enable', enablepass, 'configure terminal', rem_vrf, rem_pe_int,
 
                     'end', 'write memory']
 
@@ -358,7 +366,7 @@ class Channel(BuildService):
 
         return self.__remote_shell_out
 
-    def l3vpn_pe_shell_session(self):
+    def l3vpn_pe_shell_session(self, session_type: str):
         """Connects to the cli shell of the PE device to make changes"""
 
         try:
@@ -372,19 +380,20 @@ class Channel(BuildService):
             print(self.pe_ip, e.args)
             return
 
-        channel.sendall(b'terminal length 0 \n')
-        time.sleep(.1)
-        channel.sendall(b'enable\n')
-        channel.sendall(self.__enable_pass + '\n')
+        """
+        -If the session_type Arg is set to 'provision set the command set to l3vpn4 build'
+        """
+        if session_type == 'provision':
+            command_set = self.cios_pe_build_mpls_three_commands()
+        if session_type == 'decommission':
+            command_set = self.cios_pe_decom_layer_three_mpls_commands()
 
-        command_set = self.cios_pe_build_layer_three_mpls_commands()
         """
         Execute the commands from the command set list
         """
         for x in command_set:
             time.sleep(.1)
             channel.sendall(x + "\n")
-
         """
         Special case for finding and entering customer routes from the database
         """
@@ -394,7 +403,6 @@ class Channel(BuildService):
 
         time.sleep(.2)
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
-
         ssh.close()
         self.set_remote_sell_out(shell_output)
         print(shell_output)
@@ -433,7 +441,7 @@ class Channel(BuildService):
         print(shell_output)
 
     def layer2_ce_shell_session(self):
-        """Make build_layer_three_mpls4_changes on CE switch"""
+        """Make build_mpls_three4_changes on CE switch"""
 
         try:
             ssh = paramiko.SSHClient()
@@ -447,7 +455,6 @@ class Channel(BuildService):
             return
 
         channel.sendall(b'terminal length 0 \n')
-
         channel.sendall(b'enable\n')
         time.sleep(.2)
         channel.sendall(self.__enable_pass + '\n')  # Need a dynamic solution  for password here
@@ -467,15 +474,15 @@ class Channel(BuildService):
         ssh.close()
         print(shell_output)
 
-    def build_layer_three_mpls(self):
+    def build_mpls_three(self):
         """Implements L3vpn changes on PE router and CE switch"""
 
         self.set_service_dict(self.service_name)  # 1
-        # self.l3vpn_pe_shell_session()
+        self.l3vpn_pe_shell_session(self, session_type='provision')
         self.layer2_ce_shell_session()
 
     def layer2_ce_decom_shell_session(self):
-        """Make build_layer_three_mpls4_changes on CE switch"""
+        """Make build_mpls_three4_changes on CE switch"""
 
         try:
             ssh = paramiko.SSHClient()
@@ -509,14 +516,14 @@ class Channel(BuildService):
         ssh.close()
         print(shell_output)
 
-    def build_layer_three_mpls(self):
+    def build_mpls_three(self):
         """Implements L3vpn changes on PE router and CE switch"""
 
         self.set_service_dict(self.service_name)  # 1
-        self.l3vpn_pe_shell_session()
-        self.layer2_ce_shell_session()
+        self.l3vpn_pe_shell_session(session_type='provision')  # 2
+        # self.layer2_ce_shell_session()
 
-    def decom_layer_three_mpls(self):
+    def decom_mpls_three(self):
         """decomission L3vpn """
 
         self.set_service_dict(self.service_name)

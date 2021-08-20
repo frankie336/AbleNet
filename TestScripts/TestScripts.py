@@ -25,14 +25,14 @@ def test_vpn3build():
     from L3Vpn.AutoShell3 import Channel
 
     activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
-    activate.build_layer_three_mpls()
+    activate.build_mpls_three()
 
 
 def test_vpn3decom():
     """ """
     from L3Vpn.AutoShell3 import Channel
     activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
-    activate.decom_layer_three_mpls()
+    activate.decom_mpls_three()
 
 
 def test_GeneratePassword():
@@ -54,8 +54,12 @@ def test_passing_shell():
 if __name__ == "__main__":
     pass
     test_vpn3build()
-    test_vpn3decom()
+    #test_vpn3decom()
     # test_CreateL3vpnTable()
     # test_GeneratePassword()
     # test_CreateDeviceTable()
     # test_passing_shell()
+
+
+
+
