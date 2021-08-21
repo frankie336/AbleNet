@@ -4,7 +4,7 @@ Created on Mon Jan 11 20:08:27 2021
 @author: Francis Neequaye
          francis.neequaye@gmail.com
 """
-
+import time
 
 def test_CreateL3vpnTable():
     """ """
@@ -22,16 +22,16 @@ def test_CreateDeviceTable():
 
 def test_vpn3build():
     """ """
-    from L3Vpn.AutoShell3 import Channel
+    from autoshell.AutoShell3 import Channel
 
-    activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
+    activate = Channel(service_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
     activate.build_mpls_three()
 
 
 def test_vpn3decom():
     """ """
-    from L3Vpn.AutoShell3 import Channel
-    activate = Channel(servie_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
+    from autoshell.AutoShell3 import Channel
+    activate = Channel(service_name='vpn00005', user_name='cisco', password='cisco', enable_pass='cisco')
     activate.decom_mpls_three()
 
 
@@ -54,6 +54,7 @@ def test_passing_shell():
 if __name__ == "__main__":
     pass
     test_vpn3build()
+    #time.sleep(1)
     #test_vpn3decom()
     # test_CreateL3vpnTable()
     # test_GeneratePassword()

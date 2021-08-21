@@ -1,3 +1,5 @@
+import json
+from autoshell.AutoShell3 import Channel
 from GeneratePassword import password_gen
 from flask import  Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -165,6 +167,8 @@ def verify_l3vpn4():
 @app.route('/provision_l3vpn4',methods=['GET','POST'])
 def provision_l3vpn4():
 
+
+
     links = ['/','/verify_l3vpn4','/show_shell_output']
 
     return render_template('provision_l3vpn4.html',
@@ -186,6 +190,8 @@ def deactivate_l3vpn4():
 def post_provision_l3vpn4():
 
 
+
+
     form = request.form
     search_vlaue = form['search_string']
     user_name = form['user_name']
@@ -194,11 +200,14 @@ def post_provision_l3vpn4():
 
 
     if   search_vlaue:
-        from L3Vpn.AutoShell3 import Channel
 
-        activate = Channel(servie_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
+
+        activate = Channel(service_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
         activate.build_mpls_three()
-        l3shell_out = activate.get_remote_sell_out()
+
+        l3shell_out = activate.get_remote_shell_out()
+
+        incoming_sell_output.clear()
         incoming_sell_output.append(l3shell_out)
 
 
@@ -206,6 +215,11 @@ def post_provision_l3vpn4():
 
     else:
         return redirect(url_for('provision_l3vpn4'))
+
+
+
+
+
 
 
 
@@ -213,28 +227,26 @@ def post_provision_l3vpn4():
 @app.route('/post_deactivate_l3vpn4', methods=['POST'])
 def post_deactivate_l3vpn4():
 
-
     form = request.form
     search_vlaue = form['search_string']
     user_name = form['user_name']
     password = form['password']
     enable_pass = form['enable_pass']
 
+    de_activate = Channel(service_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
 
-    if   search_vlaue:
-        from L3Vpn.AutoShell3 import Channel
+    de_activate.decom_mpls_three()
 
-        de_activate = Channel(servie_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
-        de_activate.decom_mpls_three()
+    test = de_activate.get_remote_shell_out()
 
-        l3shell_out = de_activate.get_remote_sell_out()
-        incoming_sell_output.append(l3shell_out)
+    incoming_sell_output.clear()#******************************
+    incoming_sell_output.append(test)
+
+    print(de_activate.get_remote_shell_out())
+
+    return redirect(url_for('deactivate_l3vpn4'))
 
 
-        return redirect(url_for('deactivate_l3vpn4'))
-
-    else:
-        return redirect(url_for('deactivate_l3vpn4'))
 
 
 
@@ -297,12 +309,20 @@ def search():
 @app.route('/show_shell_output')
 def show_shell_output():
 
+    #incoming_sell_output.clear()
+
     if len(incoming_sell_output) > 0:
         L3remote_sell_out = incoming_sell_output
         L3remote_sell_out = L3remote_sell_out[0].split('\r\n')
-        conf = L3remote_sell_out.index('PE1#configure terminal')
+        conf = L3remote_sell_out.index('PE1#show clock')
         L3remote_sell_out = L3remote_sell_out[conf:]
-        #L3remote_sell_out = 'hello'
+
+
+        print(L3remote_sell_out)
+
+
+
+
 
 
     else:
