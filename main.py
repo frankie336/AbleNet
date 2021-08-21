@@ -90,6 +90,19 @@ class L3Vpn(db.Model):
 incoming_sell_output = []
 
 
+
+
+
+
+@app.route('/test_page')
+def testpage():
+
+    return render_template("test_page.html")
+
+
+
+
+
 @app.route("/")
 def index():
 
@@ -97,6 +110,7 @@ def index():
     links = ['/add_l3vpn4','/verify_l3vpn4']
 
     return render_template("index.html",links=links)
+
 
 
 

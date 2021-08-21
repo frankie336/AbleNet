@@ -48,19 +48,19 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
 
                 hasattr(subclass, 'pe_mpls_three_shell_session') and
                 callable(subclass.pe_mpls_three_shell_session) and
-                
+
                 hasattr(subclass, 'ce_sw_shell_session') and
                 callable(subclass.ce_sw_shell_session) and
 
                 hasattr(subclass, 'find_ipv4_routes') and
                 callable(subclass.find_ipv4_routes) and
-                
+
                 hasattr(subclass, 'set_remote_shell_out') and
                 callable(subclass.set_remote_shell_out) and
-                
+
                 hasattr(subclass, 'get_remote_shell_out') and
                 callable(subclass.get_remote_shell_out) and
-                
+
                 hasattr(subclass, 'build_mpls_three') and
                 callable(subclass.build_mpls_three) or
 
@@ -102,7 +102,7 @@ class FormalAutoShellInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def ce_sw_shell_session(self,session_type: str):
+    def ce_sw_shell_session(self, session_type: str):
         """Make build_mpls_three4_changes on CE switch"""
         raise NotImplementedError
 
@@ -160,6 +160,7 @@ class QueryService(FormalAutoShellInterface, ABC):
         self.ce_man_ip = None
         self.pe_man_ip = None
         self.ce_manwan_ip = None
+        self.wan_description = None
 
     def find_ipv4_routes(self, input_string: str):
         """Search for ipv4 routes in string"""
@@ -302,8 +303,8 @@ class BuildService(QueryService, ABC):
                     'ip address ' + self.pe_man_ip + ' 255.255.255.252',
                     'exit',
                     'ip route vrf vpn00001 ' + self.ce_man_ip + ' 255.255.255.255 ' + self.ce_manwan_ip + ' name ' + self.vrf
-                    #'end',
-                    #'write memory'
+                    # 'end',
+                    # 'write memory'
 
                     ]
 
@@ -316,8 +317,8 @@ class BuildService(QueryService, ABC):
                     'enable',
                     self.__enable_pass,
                     'configure terminal',
-                    'vlan '+self.wan_vlan,
-                    'name '+self.vrf,
+                    'vlan ' + self.wan_vlan,
+                    'name ' + self.vrf,
                     'exit',
                     'interface ' + self.ce_cust_switch_int,
                     'description ' + self.vrf,
@@ -334,13 +335,13 @@ class BuildService(QueryService, ABC):
 
     def cios_pe_decom_mpls_three_commands(self):
         """Removes L3vpn service from PE"""
-        
+
         commands = ['terminal length 0',
                     'enable',
                     self.__enable_pass,
                     'show clock',
                     'configure terminal',
-                    'no ip vrf '+ self.vrf,
+                    'no ip vrf ' + self.vrf,
                     'no interface ' + self.pe_interface,
 
                     'end', 'write memory']
@@ -355,8 +356,8 @@ class BuildService(QueryService, ABC):
                     'configure terminal',
                     'interface ' + self.ce_cust_switch_int,
                     'no switchport access vlan ' + self.wan_vlan,
-                    'no vlan '+self.wan_vlan
-                    #'default interface ' + self.ce_cust_switch_int
+                    'no vlan ' + self.wan_vlan
+                    # 'default interface ' + self.ce_cust_switch_int
                     ]
         return commands
 
@@ -404,7 +405,6 @@ class Channel(BuildService):
         if session_type == 'decommission':
             command_set = self.cios_pe_decom_mpls_three_commands()
 
-
         """
         Execute the commands from the command set list
         """
@@ -417,22 +417,17 @@ class Channel(BuildService):
         for x in self.extracted_routes:
             time.sleep(.1)
             channel.sendall('ip route vrf ' + self.vrf + ' ' + x + ' ' + self.ipv4next_hop + "\n")
-            channel.sendall('end \n')
-            channel.sendall('write memory \n')
-
+            channel.sendall(b'end \n')
+            channel.sendall(b'write memory \n')
 
         shell_output = channel.recv(9999).decode(encoding='utf-8')  # Receive buffer output
         time.sleep(1)
         self.set_remote_shell_out(shell_output)
         ssh.close()
 
-        #print(shell_output)
+        # print(shell_output)
 
-
-
-
-
-    def ce_sw_shell_session(self,session_type):
+    def ce_sw_shell_session(self, session_type):
         """Make build_mpls_three4_changes on CE switch"""
 
         try:
@@ -445,7 +440,6 @@ class Channel(BuildService):
         except Exception as e:
             print(self.pe_ip, e.args)
             return
-
 
         """
         -If the session_type Arg is set to 'provision set the command set to l3vpn4 build'
@@ -464,15 +458,13 @@ class Channel(BuildService):
         ssh.close()
         print(shell_output)
 
-
-
     def build_mpls_three(self):
         """Implements L3vpn changes on PE router and CE switch"""
 
-        self.set_service_dict(self.service_name) #Sets the correct didctionary context per service name
+        self.set_service_dict(self.service_name)  # Sets the correct didctionary context per service name
 
-        self.pe_mpls_three_shell_session(session_type='provision')  #Implements changes on PE device
-        self.ce_sw_shell_session(session_type='provision')#2Implements changes on CE switch
+        self.pe_mpls_three_shell_session(session_type='provision')  # Implements changes on PE device
+        self.ce_sw_shell_session(session_type='provision')  # 2Implements changes on CE switch
 
     def decom_mpls_three(self):
         """decomission L3vpn """
@@ -480,5 +472,3 @@ class Channel(BuildService):
 
         self.pe_mpls_three_shell_session(session_type='decommission')
         self.ce_sw_shell_session(session_type='decommission')
-
-
