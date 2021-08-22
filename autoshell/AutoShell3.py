@@ -6,7 +6,7 @@ import re
 import datetime
 import logging
 from Database.Queries import RunSqlQuery
-
+#
 """
 Created on Mon Jan 11 20:08:27 2021
 #! Python 3.8
@@ -24,6 +24,7 @@ of the Hosts.dat file
 the Commands.dat file 
 """
 
+#yryyrrtytr
 
 class FormalAutoShellInterface(metaclass=abc.ABCMeta):
     @classmethod

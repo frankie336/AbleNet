@@ -335,27 +335,13 @@ def show_shell_output():
         print(L3remote_sell_out)
 
 
-
-
-
-
     else:
         L3remote_sell_out = None
 
 
 
     return render_template('/show_shell_output.html',L3remote_sell_out=L3remote_sell_out)
-
-
-
-
 if __name__ == "__main__":
     #app.run(debug=True)
     app.run(host='0.0.0.0', port=3000,debug=True)
-
-
-
-
-
-
 
