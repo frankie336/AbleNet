@@ -4,11 +4,12 @@ from GeneratePassword import password_gen
 from flask import  Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-from flask import request,redirect,url_for,render_template,send_file
+from flask import request,redirect,url_for,render_template,send_file,jsonify
 from sqlalchemy import select
 import pymysql
 from sqlalchemy.orm import Session
 pymysql.install_as_MySQLdb()
+
 app = Flask(__name__)
 
 
@@ -215,7 +216,6 @@ def post_provision_l3vpn4():
 
     if   search_vlaue:
 
-
         activate = Channel(service_name=search_vlaue, user_name=user_name, password=password, enable_pass=enable_pass)
         activate.build_mpls_three()
 
@@ -223,7 +223,6 @@ def post_provision_l3vpn4():
 
         incoming_sell_output.clear()
         incoming_sell_output.append(l3shell_out)
-
 
         return redirect(url_for('provision_l3vpn4'))
 
@@ -253,7 +252,7 @@ def post_deactivate_l3vpn4():
 
     test = de_activate.get_remote_shell_out()
 
-    incoming_sell_output.clear()#******************************
+    incoming_sell_output.clear()
     incoming_sell_output.append(test)
 
     print(de_activate.get_remote_shell_out())
@@ -331,16 +330,57 @@ def show_shell_output():
         conf = L3remote_sell_out.index('PE1#show clock')
         L3remote_sell_out = L3remote_sell_out[conf:]
 
-
         print(L3remote_sell_out)
-
 
     else:
         L3remote_sell_out = None
 
+@app.route('/all', methods=['GET'])
+def api_all():
+
+    args1 = request.args['args1']
+    l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(args1)).first()
+
+    vpn_api = [
+
+         {'CustomerName':l3vpn4_attr.CustomerName,
+          'CustomerAddress': l3vpn4_attr.CustomerAddress,
+           'Status' : l3vpn4_attr.Status,
+           'AsNumber': l3vpn4_attr.AsNumber,
+           'Rd' : l3vpn4_attr.Rd,
+           'Rt' : l3vpn4_attr.Rt,
+           'ProviderEdge': l3vpn4_attr.ProviderEdge,
+           'BgpPassword' : l3vpn4_attr.BgpPassword,
+           'ImportVpn' : l3vpn4_attr.ImportVpn,
+           'Routes': l3vpn4_attr.Routes,
+           'CustomerNextHop': l3vpn4_attr.CustomerNextHop,
+           'PeInterface': l3vpn4_attr.PeInterface,
+           'WanVlan': l3vpn4_attr.WanVlan,
+           'ManVlan':l3vpn4_attr.ManVlan,
+           'PeWanIPAddress': l3vpn4_attr.PeWanIPAddress,
+           'CeWanIPAddress': l3vpn4_attr.CeWanIPAddress,
+           'ManageInterface':  l3vpn4_attr.ManageInterface,
+           'PeManagementWanI':l3vpn4_attr.PeManagementWanIp,
+           'CeManagementWanIp': l3vpn4_attr.CeManagementWanIp,
+           'CeLoopback': l3vpn4_attr.CeLoopback,
+           'Cir':l3vpn4_attr.Cir,
+           'Switch': l3vpn4_attr.Switch,
+          'SwitchInterface': l3vpn4_attr.SwitchInterface
 
 
-    return render_template('/show_shell_output.html',L3remote_sell_out=L3remote_sell_out)
+
+          }
+
+     ]
+
+    return jsonify(vpn_api)
+
+
+
+
+
+
+    #return render_template('/show_shell_output.html',L3remote_sell_out=L3remote_sell_out)
 if __name__ == "__main__":
     #app.run(debug=True)
     app.run(host='0.0.0.0', port=3000,debug=True)
