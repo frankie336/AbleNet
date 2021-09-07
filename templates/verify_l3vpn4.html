@@ -17,34 +17,32 @@
     {% if CustomerName %}
      <a href="{{ links[1] }}">L3Vpn4 Creator </a>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
     <a href="{{ links[3] }}"> L3Vpn4 Deactivator </a>&emsp;
+    <a href="{{ links[4] }}"> L3Vpn4 Update </a>&emsp;
     {% endif %}
   </form>
 
   {% if CustomerName %}
-
-<br><b>Customer Name:</b> {{CustomerName}}</br>
-  <br><b>Address:</b> {{CustomerAddress}}</br>
-  <br><b>Service Status:</b> {{Status}}</br>
-  <br><b>PE:</b> {{ProviderEdge}}</br>
-  <br><b>PE Interface:</b> {{PeInterface}}</br>
-  <br><b>Wan Vlan:</b> {{WanVlan}}</br>
-  <br><b>As Number:</b> {{AsNumber}}</br>
-  <br><b>BGP Password:</b> {{BgpPassword}}</br>
-  <br><b>RD:</b> {{Rd}}</br>
-  <br><b>RT:</b> {{Rt}}</br>
-  <br><b>Related To:</b> {{ImportVpn}}</br>
-  <br><b>Customer Routes:</b> {{Routes}}</br>
-  <br><b>Customer Next Hop IP:</b> {{CustomerNextHop}}</br>
-  <br><b>Customer Wan IP:</b>  {{CeWanIPAddress}}</br>
-  <br><b>Management Interface:</b>  {{ManageInterface}}</br>
-  <br><b>PE Management IP:</b> {{PeManagementWanIp}}</br>
-  <br><b>Management Vlan:</b> {{ManVlan}}</br>
-  <br><b>Customer CE Managment Loopack IP:</b> {{CeLoopback}}</br>
-  <br><b>Cir:</b> {{Cir}}</br>
-  <br><b>CE Switch:</b>  {{Switch}}</br>
-  <br><b>CE Switch Interface:</b> {{SwitchInterface}}</br>
-
-
+  <br><b>Customer Name:</b><label id ="CustomerName" name="CustomerName">{{CustomerName}}</label></br>
+  <br><b>Address:</b><label id ="Address" name="Address">{{CustomerAddress}}</label></br>
+  <br><b>Status:</b><label id ="Status" name="Status">{{Status}}</label></br>
+  <br><b>PE:</b><label id ="PE" name="PE">{{ProviderEdge}}</label></br>
+  <br><b>PE Interface:</b><label id ="PEInterface" name="PEInterface">{{PeInterface}}</label></br>
+  <br><b>Vlan:</b><label id ="Vlan" name="Vlan">{{WanVlan}}</label></br>
+  <br><b>As Number:</b><label id ="AsNumber" name="AsNumber">{{AsNumber}}</label></br>
+  <br><b>BGP Password:</b><label id ="BgpPassword" name="BgpPassword">{{BgpPassword}}</label></br>
+  <br><b>RD:</b><label id ="RD" name="RD">{{Rd}}</label></br>
+  <br><b>RD:</b><label id ="RT" name="RT">{{Rt}}</label></br>
+  <br><b>Related To:</b><label id ="Related" name="Related">{{ImportVpn}}</label></br>
+  <br><b>Customer Routes:</b><label id ="Routes" name="Routes">{{Routes}}</label></br>
+  <br><b>Customer Gateway:</b><label id ="Gateway" name="Gateway">{{CustomerNextHop}}</label></br>
+  <br><b>Customer Wan IP:</b><label id ="WanIp" name="WanIp">{{CeWanIPAddress}}</label></br>
+  <br><b>PE Management IP:</b><label id ="ManIp" name="ManIp">{{PeManagementWanIp}}</label></br>
+  <br><b>Management Interface:</b><label id ="ManInt" name="ManInt">{{ManageInterface}}</label></br>
+  <br><b>Management Vlan:</b><label id ="ManVlan" name="ManVlan">{{ManVlan}}</label></br>
+  <br><b>Loopack IP:</b><label id ="Loopback" name="Loopback">{{CeLoopback}}</label></br>
+  <br><b>Cir:</b><label id ="Cir" name="Cir">{{Cir}}</label></br>
+  <br><b>Switch:</b><label id ="Switch" name="Switch">{{Switch}}</label></br>
+  <br><b>Switch Interface:</b><label id ="SwitchInt" name="SwitchInt">{{SwitchInterface}}</label></br>
 
   {% endif %}
 

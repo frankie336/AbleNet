@@ -16,7 +16,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet"
 app.debug = True
-
 db = SQLAlchemy(app)
 
 
@@ -38,7 +37,7 @@ class L3Vpn(db.Model):
     PeInterface = db.Column(db.String(50))  # Gi0/0.3
     WanVlan = db.Column(db.String(50))  # 103
     ManVlan = db.Column(db.String(50))  # 903
-    PeWanIPAddress = db.Column(db.String(50))  # 10.100.100.1 255.255.255.252
+    PeWanIPAddress = db.Column(db.String(50))  #10.100.100.1 255.255.255.252
     CeWanIPAddress = db.Column(db.String(50))  # 10.100.100.2 255.255.255.252
     ManageInterface = db.Column(db.String(50))  # Gi0/0.903
     PeManagementWanIp = db.Column(db.String(50))  # 172.16.0.0/16
@@ -89,9 +88,6 @@ class L3Vpn(db.Model):
 
 
 incoming_sell_output = []
-
-
-
 
 
 
@@ -191,6 +187,19 @@ def provision_l3vpn4():
 
 
 
+
+
+@app.route('/update_l3vpn4/',methods=['GET','POST'])
+def update():
+
+    links = ['/', '/verify_l3vpn4', '/show_shell_output']
+    return render_template('update_l3vpn4.html',
+                           links=links)
+
+
+
+
+
 @app.route('/deactivate_l3vpn4',methods=['GET','POST'])
 def deactivate_l3vpn4():
 
@@ -266,50 +275,48 @@ def post_deactivate_l3vpn4():
 
 
 
-
-
-
-
 @app.route('/search',methods=['GET','POST'])
 def search():
 
-    links = ['/', '/provision_l3vpn4','/provision_l3vpn4','/deactivate_l3vpn4']
+    links = ['/', '/provision_l3vpn4','/provision_l3vpn4',
+             '/deactivate_l3vpn4','/update_l3vpn4']
+
 
 
     form = request.form
-    search_vlaue =  form['search_string']
-    print(search_vlaue)
-    search = "%{}%".format(search_vlaue)
-    print(search)
+    search_string =  form['search_string']
+    print(search_string)
+    #l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(search)).first()
+    result = L3Vpn.query.filter_by(SerViceName=search_string).first()
 
-    l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(search)).first()
+    #result.ProviderEdge = 'Hello Is It Me?'
+    db.session.commit()
 
-    if l3vpn4_attr:
-
+    if result:
         return  render_template('verify_l3vpn4.html',links=links,
-                                CustomerName=l3vpn4_attr.CustomerName,
-                                CustomerAddress = l3vpn4_attr.CustomerAddress,
-                                Status = l3vpn4_attr.Status,
-                                ProviderEdge = l3vpn4_attr.ProviderEdge,
-                                AsNumber = l3vpn4_attr.AsNumber,
-                                BgpPassword = l3vpn4_attr.BgpPassword,
-                                Rd = l3vpn4_attr.Rd,
-                                Rt = l3vpn4_attr.Rt,
-                                ImportVpn = l3vpn4_attr.ImportVpn,
-                                Routes = l3vpn4_attr.Routes,
-                                CustomerNextHop = l3vpn4_attr.CustomerNextHop,
-                                PeInterface = l3vpn4_attr.PeInterface,
-                                WanVlan = l3vpn4_attr.WanVlan,
-                                ManVlan = l3vpn4_attr.ManVlan,
-                                PeWanIPAddress = l3vpn4_attr.PeWanIPAddress,
-                                CeWanIPAddress = l3vpn4_attr.CeWanIPAddress,
-                                ManageInterface = l3vpn4_attr.ManageInterface,
-                                PeManagementWanIp = l3vpn4_attr.PeManagementWanIp,
-                                CeManagementWanIp = l3vpn4_attr.CeManagementWanIp,
-                                CeLoopback = l3vpn4_attr.CeLoopback,
-                                Cir = l3vpn4_attr.Cir,
-                                Switch = l3vpn4_attr.Switch,
-                                SwitchInterface = l3vpn4_attr.SwitchInterface
+                                CustomerName=result.CustomerName,
+                                CustomerAddress = result.CustomerAddress,
+                                Status = result.Status,
+                                ProviderEdge = result.ProviderEdge,
+                                AsNumber = result.AsNumber,
+                                BgpPassword = result.BgpPassword,
+                                Rd = result.Rd,
+                                Rt = result.Rt,
+                                ImportVpn = result.ImportVpn,
+                                Routes = result.Routes,
+                                CustomerNextHop = result.CustomerNextHop,
+                                PeInterface = result.PeInterface,
+                                WanVlan = result.WanVlan,
+                                ManVlan = result.ManVlan,
+                                PeWanIPAddress = result.PeWanIPAddress,
+                                CeWanIPAddress = result.CeWanIPAddress,
+                                ManageInterface = result.ManageInterface,
+                                PeManagementWanIp = result.PeManagementWanIp,
+                                CeManagementWanIp = result.CeManagementWanIp,
+                                CeLoopback = result.CeLoopback,
+                                Cir = result.Cir,
+                                Switch = result.Switch,
+                                SwitchInterface = result.SwitchInterface
                                 )
     else:
 
@@ -365,7 +372,7 @@ def api_all():
            'CeLoopback': l3vpn4_attr.CeLoopback,
            'Cir':l3vpn4_attr.Cir,
            'Switch': l3vpn4_attr.Switch,
-          'SwitchInterface': l3vpn4_attr.SwitchInterface
+           'SwitchInterface': l3vpn4_attr.SwitchInterface
 
 
 
@@ -374,11 +381,6 @@ def api_all():
      ]
 
     return jsonify(vpn_api)
-
-
-
-
-
 
     #return render_template('/show_shell_output.html',L3remote_sell_out=L3remote_sell_out)
 if __name__ == "__main__":

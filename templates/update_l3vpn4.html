@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{{ links[0] }}">Home</a>&emsp;
+
+<h1>L3Vpn4 Service Creation</h1>
+<p></p>
+    <form method="post" action ="/post_l3vpn4_new">
+        <p><lablel>SerViceName</lablel>
+            <input id="SerViceName" name="SerViceName" type="text"></p>
+        <p><lablel>CustomerName</lablel>
+            <input id="CustomerName" name="CustomerName" type="text"></p>
+        <p><lablel>CustomerAddress</lablel>
+            <input id="CustomerAddress" name="CustomerAddress" type="text"></p>
+        <p><lablel>Status</lablel>
+            <input id="Status" name="Status" type="text"></p>
+        <p><lablel>ProviderEdge</lablel>
+            <input id="ProviderEdge" name="ProviderEdge" type="text"></p>
+        <p><lablel>AsNumber</lablel>
+            <input id="AsNumber" name="AsNumber" type="text"></p>
+        <p><lablel>BgpPassword</lablel>
+            <input id="BgpPassword" name="BgpPassword" value="{{bgp_pass}}"type="text" readonly></p>
+        <p><lablel>Rd</lablel>
+            <input id="Rd" name="Rd" type="text"></p>
+        <p><lablel>Rt</lablel>
+            <input id="Rt" name="Rt" type="text"></p>
+        <p><lablel>ImportVpn</lablel>
+            <input id="ImportVpn" name="ImportVpn" type="text"></p>
+        <p><lablel>Routes</lablel>
+            <input id="Routes" name="Routes" type="text"></p>
+        <p><lablel>CustomerNextHop</lablel>
+            <input id="CustomerNextHop" name="CustomerNextHop" type="text"></p>
+        <p><lablel>PeInterface</lablel>
+            <input id="PeInterface" name="PeInterface" type="text"></p>
+        <p><lablel>WanVlan</lablel>
+            <input id="WanVlan" name="WanVlan" type="text"></p>
+        <p><lablel>ManVlan</lablel>
+            <input id="ManVlan" name="ManVlan" type="text"></p>
+        <p><lablel>PeWanIPAddress</lablel>
+            <input id="PeWanIPAddress" name="PeWanIPAddress" type="text"></p>
+        <p><lablel>CeWanIPAddress</lablel>
+            <input id="CeWanIPAddress" name="CeWanIPAddress" type="text"></p>
+        <p><lablel>ManageInterface</lablel>
+            <input id="ManageInterface" name="ManageInterface" type="text"></p>
+        <p><lablel>PeManagementWanIp</lablel>
+            <input id="PeManagementWanIp" name="PeManagementWanIp" type="text"></p>
+       <p><lablel>CeManagementWanIp</lablel>
+           <input id="CeManagementWanIp" name="CeManagementWanIp" type="text"></p>
+        <p><lablel>CeLoopback</lablel>
+            <input id="CeLoopback" name="CeLoopback" type="text"></p>
+        <p><lablel>Cir</lablel>
+            <input id="Cir" name="Cir" type="text"></p>
+        <p><lablel>Switch</lablel>
+            <input id="Switch" name="Switch" type="text"></p>
+        <p><lablel>SwitchInterface</lablel>
+            <input id="SwitchInterface" name="SwitchInterface" type="text"></p>
+        <input type="submit" />
+
+    </form>
+
+</body>
+</html>
