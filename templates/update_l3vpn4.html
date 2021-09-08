@@ -8,59 +8,122 @@
 <a href="{{ links[0] }}">Home</a>&emsp;
 
 <h1>L3Vpn4 Service Creation</h1>
+
+
+  <form method="POST">
+    <input type="text" autofocus="autofocus" name="search_string">
+    <input type="submit" formaction="/change" value="Search">&emsp;&emsp;
+    {% if CustomerName %}
+     <a href="{{ links[1] }}">L3Vpn4 Creator </a>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+     <a href="{{ links[3] }}"> L3Vpn4 Deactivator </a>&emsp;
+     <a href="{{ links[4] }}"> L3Vpn4 Update </a>&emsp;
+    {% endif %}
+  </form>
+
+
+{% if CustomerName %}
+<script src="{{url_for('static', filename='toggleEnable.js')}}"></script>
 <p></p>
     <form method="post" action ="/post_l3vpn4_new">
-        <p><lablel>SerViceName</lablel>
-            <input id="SerViceName" name="SerViceName" type="text"></p>
+        <p><lablel>ServiceName</lablel>
+            <input id="SerViceName" name="SerViceName" type="text" ></p>
         <p><lablel>CustomerName</lablel>
-            <input id="CustomerName" name="CustomerName" type="text"></p>
+            <input id="CustomerName" name="CustomerName" type="text" value ="{{ CustomerName }}" disabled >
+            <button type="button" onclick="toggleEnable('CustomerName')"> Enable/Disable </button>
+        </p>
         <p><lablel>CustomerAddress</lablel>
-            <input id="CustomerAddress" name="CustomerAddress" type="text"></p>
+            <input id="CustomerAddress" name="CustomerAddress" type="text" value="{{ CustomerAddress }}" disabled>
+            <button type="button" onclick="toggleEnable('CustomerAddress')"> Enable/Disable </button>
+        </p>
         <p><lablel>Status</lablel>
-            <input id="Status" name="Status" type="text"></p>
+            <input id="Status" name="Status" type="text" value="{{ Status }}" disabled>
+            <button type="button" onclick="toggleEnable('Status')"> Enable/Disable </button>
+        </p>
         <p><lablel>ProviderEdge</lablel>
-            <input id="ProviderEdge" name="ProviderEdge" type="text"></p>
+            <input id="ProviderEdge" name="ProviderEdge" type="text" value="{{ ProviderEdge }}" disabled>
+            <button type="button" onclick="toggleEnable('ProviderEdge')"> Enable/Disable </button>
+        </p>
         <p><lablel>AsNumber</lablel>
-            <input id="AsNumber" name="AsNumber" type="text"></p>
+            <input id="AsNumber" name="AsNumber" type="text" value="{{ AsNumber }}" disabled>
+            <button type="button" onclick="toggleEnable('AsNumber')"> Enable/Disable </button>
+
+        </p>
         <p><lablel>BgpPassword</lablel>
-            <input id="BgpPassword" name="BgpPassword" value="{{bgp_pass}}"type="text" readonly></p>
+            <input id="BgpPassword" name="BgpPassword" value="{{ BgpPassword }}"type="text" disabled>
+            <button type="button" onclick="toggleEnable('BgpPassword')"> Enable/Disable </button>
+        </p>
         <p><lablel>Rd</lablel>
-            <input id="Rd" name="Rd" type="text"></p>
+            <input id="Rd" name="Rd" type="text" value="{{ Rd }}" disabled>
+            <button type="button" onclick="toggleEnable('Rd')"> Enable/Disable </button>
+        </p>
         <p><lablel>Rt</lablel>
-            <input id="Rt" name="Rt" type="text"></p>
+            <input id="Rt" name="Rt" type="text" value="{{Rt}}" disabled>
+            <button type="button" onclick="toggleEnable('Rt')"> Enable/Disable </button>
+        </p>
         <p><lablel>ImportVpn</lablel>
-            <input id="ImportVpn" name="ImportVpn" type="text"></p>
+            <input id="ImportVpn" name="ImportVpn" type="text" value="{{ ImportVpn }}" disabled>
+            <button type="button" onclick="toggleEnable('ImportVpn')"> Enable/Disable </button>
+        </p>
         <p><lablel>Routes</lablel>
-            <input id="Routes" name="Routes" type="text"></p>
+            <input id="Routes" name="Routes" type="text" value="{{ Routes }}" disabled>
+            <button type="button" onclick="toggleEnable('Routes')"> Enable/Disable </button>
+        </p>
         <p><lablel>CustomerNextHop</lablel>
-            <input id="CustomerNextHop" name="CustomerNextHop" type="text"></p>
+            <input id="CustomerNextHop" name="CustomerNextHop" type="text" vlaue="{{ CustomerNextHop }}" disabled>
+            <button type="button" onclick="toggleEnable('CustomerNextHop')"> Enable/Disable </button>
+        </p>
         <p><lablel>PeInterface</lablel>
-            <input id="PeInterface" name="PeInterface" type="text"></p>
+            <input id="PeInterface" name="PeInterface" type="text" value="{{ PeInterface }}" disabled>
+            <button type="button" onclick="toggleEnable('PeInterface')"> Enable/Disable </button>
+        </p>
         <p><lablel>WanVlan</lablel>
-            <input id="WanVlan" name="WanVlan" type="text"></p>
+            <input id="WanVlan" name="WanVlan" type="text" value="{{ WanVlan }}" disabled>
+            <button type="button" onclick="toggleEnable('WanVlan')"> Enable/Disable </button>
+        </p>
         <p><lablel>ManVlan</lablel>
-            <input id="ManVlan" name="ManVlan" type="text"></p>
+            <input id="ManVlan" name="ManVlan" type="text" value="{{ ManVlan }}" disabled>
+            <button type="button" onclick="toggleEnable('ManVlan')"> Enable/Disable </button>
+        </p>
         <p><lablel>PeWanIPAddress</lablel>
-            <input id="PeWanIPAddress" name="PeWanIPAddress" type="text"></p>
+            <input id="PeWanIPAddress" name="PeWanIPAddress" type="text" value="{{ PeWanIPAddress }}" disabled>
+            <button type="button" onclick="toggleEnable('PeWanIPAddress')"> Enable/Disable </button>
+        </p>
         <p><lablel>CeWanIPAddress</lablel>
-            <input id="CeWanIPAddress" name="CeWanIPAddress" type="text"></p>
+            <input id="CeWanIPAddress" name="CeWanIPAddress" type="text" value="{{ CeWanIPAddress }}" disabled>
+            <button type="button" onclick="toggleEnable('CeWanIPAddress')"> Enable/Disable </button>
+
+        </p>
         <p><lablel>ManageInterface</lablel>
-            <input id="ManageInterface" name="ManageInterface" type="text"></p>
+            <input id="ManageInterface" name="ManageInterface" type="text" value="{{ CeWanIPAddress }}" disabled>
+            <button type="button" onclick="toggleEnable('ManageInterface')"> Enable/Disable </button>
+        </p>
         <p><lablel>PeManagementWanIp</lablel>
-            <input id="PeManagementWanIp" name="PeManagementWanIp" type="text"></p>
+            <input id="PeManagementWanIp" name="PeManagementWanIp" type="text" value="{{ ManageInterface }}" disabled>
+            <button type="button" onclick="toggleEnable('PeManagementWanIp')"> Enable/Disable </button>
+        </p>
        <p><lablel>CeManagementWanIp</lablel>
-           <input id="CeManagementWanIp" name="CeManagementWanIp" type="text"></p>
+           <input id="CeManagementWanIp" name="CeManagementWanIp" type="text" value="{{ CeManagementWanIp }}" disabled>
+           <button type="button" onclick="toggleEnable('CeManagementWanIp')"> Enable/Disable </button>
+       </p>
         <p><lablel>CeLoopback</lablel>
-            <input id="CeLoopback" name="CeLoopback" type="text"></p>
+            <input id="CeLoopback" name="CeLoopback" type="text" value="{{ CeLoopback }}" disabled>
+            <button type="button" onclick="toggleEnable('CeLoopback')"> Enable/Disable </button>
+        </p>
         <p><lablel>Cir</lablel>
-            <input id="Cir" name="Cir" type="text"></p>
+            <input id="Cir" name="Cir" type="text" value="{{ Cir }}" disabled>
+            <button type="button" onclick="toggleEnable('Cir')"> Enable/Disable </button>
+        </p>
         <p><lablel>Switch</lablel>
-            <input id="Switch" name="Switch" type="text"></p>
+            <input id="Switch" name="Switch" type="text" value="{{ Switch }}" disabled>
+            <button type="button" onclick="toggleEnable('Switch')"> Enable/Disable </button>
+        </p>
         <p><lablel>SwitchInterface</lablel>
-            <input id="SwitchInterface" name="SwitchInterface" type="text"></p>
+            <input id="SwitchInterface" name="SwitchInterface" type="text" value="{{ SwitchInterface }}" disabled>
+            <button type="button" onclick="toggleEnable('SwitchInterface')"> Enable/Disable </button>
+        </p>
         <input type="submit" />
 
     </form>
-
+{% endif %}
 </body>
 </html>

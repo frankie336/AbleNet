@@ -191,8 +191,8 @@ def provision_l3vpn4():
 
 @app.route('/update_l3vpn4/',methods=['GET','POST'])
 def update():
-
-    links = ['/', '/verify_l3vpn4', '/show_shell_output']
+    links = ['/', '/provision_l3vpn4', '/provision_l3vpn4',
+             '/deactivate_l3vpn4', '/update_l3vpn4']
     return render_template('update_l3vpn4.html',
                            links=links)
 
@@ -270,6 +270,49 @@ def post_deactivate_l3vpn4():
 
 
 
+@app.route('/change',methods=['GET','POST'])
+def change():
+
+    links = ['/', '/provision_l3vpn4','/provision_l3vpn4',
+             '/deactivate_l3vpn4','/update_l3vpn4']
+
+
+    form = request.form
+    search_string =  form['search_string']
+    print(search_string)
+    #l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(search)).first()
+    result = L3Vpn.query.filter_by(SerViceName=search_string).first()
+    db.session.commit()
+
+    if result:
+        return  render_template('update_l3vpn4.html',links=links,
+                                CustomerName=result.CustomerName,
+                                CustomerAddress = result.CustomerAddress,
+                                Status = result.Status,
+                                ProviderEdge = result.ProviderEdge,
+                                AsNumber = result.AsNumber,
+                                BgpPassword = result.BgpPassword,
+                                Rd = result.Rd,
+                                Rt = result.Rt,
+                                ImportVpn = result.ImportVpn,
+                                Routes = result.Routes,
+                                CustomerNextHop = result.CustomerNextHop,
+                                PeInterface = result.PeInterface,
+                                WanVlan = result.WanVlan,
+                                ManVlan = result.ManVlan,
+                                PeWanIPAddress = result.PeWanIPAddress,
+                                CeWanIPAddress = result.CeWanIPAddress,
+                                ManageInterface = result.ManageInterface,
+                                PeManagementWanIp = result.PeManagementWanIp,
+                                CeManagementWanIp = result.CeManagementWanIp,
+                                CeLoopback = result.CeLoopback,
+                                Cir = result.Cir,
+                                Switch = result.Switch,
+                                SwitchInterface = result.SwitchInterface
+                                )
+    else:
+
+        return  render_template('update_l3vpn4.html',match_not_found =True,links=links)
 
 
 
@@ -320,8 +363,6 @@ def search():
                                 )
     else:
 
-
- 
         return  render_template('verify_l3vpn4.html',match_not_found =True,links=links)
 
 
