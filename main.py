@@ -17,8 +17,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://AbleNetAdmin:$TestAdMin$336@10.1.0.3/ablenet"
 app.debug = True
 db = SQLAlchemy(app)
-
-
 class L3Vpn(db.Model):
 
     id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
@@ -91,6 +89,7 @@ incoming_sell_output = []
 
 
 
+
 @app.route('/test_page')
 def testpage():
 
@@ -98,32 +97,22 @@ def testpage():
 
 
 
-
-
 @app.route("/")
 def index():
 
 
-    links = ['/add_l3vpn4','/verify_l3vpn4']
+    links = ['/add_l3vpn4','/verify_l3vpn4','/update_l3vpn4/']
 
     return render_template("index.html",links=links)
-
-
-
 
 
 @app.route('/add_l3vpn4')
 def add_l3vpn4():
     
     links = ['/', '/verify_l3vpn4']
-
-
-
     bgp_pass = password_gen()
-    print(bgp_pass)
+
     return render_template('add_l3vpn4.html',bgp_pass=bgp_pass,links=links)
-
-
 
 
 
@@ -213,9 +202,6 @@ def deactivate_l3vpn4():
 @app.route('/post_provision_l3vpn4_new', methods=['POST'])
 def post_provision_l3vpn4():
 
-
-
-
     form = request.form
     search_vlaue = form['search_string']
     user_name = form['user_name']
@@ -237,10 +223,6 @@ def post_provision_l3vpn4():
 
     else:
         return redirect(url_for('provision_l3vpn4'))
-
-
-
-
 
 
 
@@ -270,6 +252,175 @@ def post_deactivate_l3vpn4():
 
 
 
+
+
+
+
+
+@app.route('/edited',methods=['GET','POST'])
+def edited():
+
+    links = ['/', '/provision_l3vpn4','/provision_l3vpn4',
+             '/deactivate_l3vpn4','/update_l3vpn4']
+
+    if request.method == "POST":
+        SerViceName = request.form.get("SerViceName")
+        CustomerName = request.form.get("CustomerName")
+        CustomerAddress = request.form.get("CustomerAddress ")
+        Status = request.form.get("Status")
+        ProviderEdge = request.form.get("ProviderEdge")
+        AsNumber = request.form.get("AsNumber")
+        BgpPassword = request.form.get("BgpPassword")
+        Rd = request.form.get("Rd")
+        Rt = request.form.get("Rt")
+        ImportVpn = request.form.get("ImportVpn")
+        Routes = request.form.get("Routes")
+        CustomerNextHop = request.form.get("CustomerNextHop")
+        PeInterface = request.form.get("PeInterface")
+        WanVlan = request.form.get("WanVlan")
+        ManVlan = request.form.get("ManVlan")
+        CeWanIPAddress = request.form.get("CeWanIPAddress")
+        ManageInterface = request.form.get("ManageInterface")
+        PeManagementWanIp = request.form.get("PeManagementWanIp")
+        CeManagementWanIp = request.form.get("CeManagementWanIp")
+        CeLoopback = request.form.get("CeLoopback")
+        Cir = request.form.get("Cir")
+        Switch = request.form.get("Switch")
+        SwitchInterface = request.form.get("SwitchInterface")
+
+        test = UpdateService(SerViceName, CustomerName,
+                     CustomerAddress, Status,
+                     ProviderEdge, AsNumber,
+                     BgpPassword, Rd, Rt,
+                     ImportVpn, Routes,
+                     CustomerNextHop, PeInterface,
+                     WanVlan, ManVlan,
+                     CeWanIPAddress, ManageInterface,
+                     PeManagementWanIp, CeManagementWanIp,
+                     CeLoopback, Cir, Switch, SwitchInterface
+                     )
+
+
+        #test.change_column()
+        result = L3Vpn.query.filter_by(SerViceName=SerViceName).first()
+
+    if CustomerAddress is not None:
+        print("Making Edit to CustomerAddress on SQL Table")
+        result.CustomerAddress = CustomerAddress
+        db.session.commit()
+
+    if Status is not None:
+        print("Making Edit to Status on SQL Table")
+        result.Status = Status
+        db.session.commit()
+
+    if ProviderEdge is not None:
+        print("Making Edit to ProviderEdge on SQL Table")
+        result.ProviderEdge = ProviderEdge
+        db.session.commit()
+
+    if AsNumber is not None:
+        print("Making Edit to AsNumber on SQL Table")
+        result.AsNumber = AsNumber
+        db.session.commit()
+
+    if BgpPassword is not None:
+        print("Making Edit to BgpPassword on SQL Table")
+        result.BgpPassword = BgpPassword
+        db.session.commit()
+
+    if Rd is not None:
+        print("Making Edit to Rd on SQL Table")
+        result.Rd = Rd
+        db.session.commit()
+
+    if Rt is not None:
+        print("Making Edit to Rt on SQL Table")
+        result.Rt = Rt
+        db.session.commit()
+
+    if ImportVpn is not None:
+        print("Making Edit to ImportVpn on SQL Table")
+        result.ImportVpn = ImportVpn
+        db.session.commit()
+
+    if Routes is not None:
+        print("Making Edit to Routes on SQL Table")
+        result.Routes = Routes
+        db.session.commit()
+
+    if CustomerNextHop is not None:
+        print("Making Edit to CustomerNextHop on SQL Table")
+        result.CustomerNextHop = CustomerNextHop
+        db.session.commit()
+
+    if PeInterface is not None:
+        print("Making Edit to PeInterface on SQL Table")
+        result.PeInterface = PeInterface
+        db.session.commit()
+
+    if WanVlan is not None:
+        print("Making Edit to WanVlan on SQL Table")
+        result.WanVlan = WanVlan
+        db.session.commit()
+
+    if ManVlan is not None:
+        print("Making Edit to ManVlan on SQL Table")
+        result.ManVlan = ManVlan
+        db.session.commit()
+
+    if CeWanIPAddress is not None:
+        print("Making Edit to CeWanIPAddress on SQL Table")
+        result.CeWanIPAddress = CeWanIPAddress
+        db.session.commit()
+
+    if ManageInterface is not None:
+        print("Making Edit to ManageInterface on SQL Table")
+        result.ManageInterface = ManageInterface
+        db.session.commit()
+
+    if PeManagementWanIp is not None:
+        print("Making Edit to PeManagementWanIp on SQL Table")
+        result.PeManagementWanIp = PeManagementWanIp
+        db.session.commit()
+
+    if CeManagementWanIp is not None:
+        print("Making Edit to CeManagementWanIp on SQL Table")
+        result.CeManagementWanIp = CeManagementWanIp
+        db.session.commit()
+
+
+    if CeLoopback is not None:
+        print("Making Edit to CeLoopback on SQL Table")
+        result.CeLoopback = CeLoopback
+        db.session.commit()
+
+    if Cir is not None:
+        print("Making Edit to Cir on SQL Table")
+        result.Cir = Cir
+        db.session.commit()
+
+    if Cir is not None:
+        print("Making Edit to Cir on SQL Table")
+        result.Cir = Cir
+        db.session.commit()
+
+    if Switch is not None:
+        print("Making Edit to Switch on SQL Table")
+        result.Switch = Switch
+        db.session.commit()
+
+    if SwitchInterface is not None:
+        print("Making Edit to SwitchInterface on SQL Table")
+        result.SwitchInterface = SwitchInterface
+        db.session.commit()
+
+    return redirect(url_for('index'))
+
+
+
+
+
 @app.route('/change',methods=['GET','POST'])
 def change():
 
@@ -285,7 +436,8 @@ def change():
     db.session.commit()
 
     if result:
-        return  render_template('update_l3vpn4.html',links=links,
+        return  render_template('update_l3vpn4.html',
+                                links=links,search_string=search_string,
                                 CustomerName=result.CustomerName,
                                 CustomerAddress = result.CustomerAddress,
                                 Status = result.Status,
@@ -332,7 +484,7 @@ def search():
     #l3vpn4_attr = L3Vpn.query.filter(L3Vpn.SerViceName.like(search)).first()
     result = L3Vpn.query.filter_by(SerViceName=search_string).first()
 
-    #result.ProviderEdge = 'Hello Is It Me?'
+
     db.session.commit()
 
     if result:
