@@ -288,20 +288,7 @@ def edited():
         Switch = request.form.get("Switch")
         SwitchInterface = request.form.get("SwitchInterface")
 
-        test = UpdateService(SerViceName, CustomerName,
-                     CustomerAddress, Status,
-                     ProviderEdge, AsNumber,
-                     BgpPassword, Rd, Rt,
-                     ImportVpn, Routes,
-                     CustomerNextHop, PeInterface,
-                     WanVlan, ManVlan,
-                     CeWanIPAddress, ManageInterface,
-                     PeManagementWanIp, CeManagementWanIp,
-                     CeLoopback, Cir, Switch, SwitchInterface
-                     )
 
-
-        #test.change_column()
         result = L3Vpn.query.filter_by(SerViceName=SerViceName).first()
 
     if CustomerAddress is not None:

@@ -1,24 +1,35 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Flask app</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  </head>
-  <body>
-    <header>
-      <div class="container">
-        <h1 class="logo">Ardit's web app</h1>
-        <strong><nav>
-          <ul class="menu">
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('about') }}">About</a></li>
-          </ul>
-        </nav></strong>
-      </div>
-    </header>
-    <div class="container">
-      {% block content %}
-      {% endblock %}
-    </div>
-  </body>
+<head>
+<style>
+div.background {
+  background: url(img_avatar.png) repeat;
+
+}
+
+div.transbox {
+  margin: 30px;
+  background-color: #ffffff;
+  border: 1px solid black;
+  opacity: 0.6;
+}
+
+div.transbox p {
+  margin: 5%;
+  font-weight: bold;
+  color: #000000;
+}
+</style>
+</head>
+<body>
+
+<div class="background">
+  <div class="transbox">
+    <p>This is some text that is placed in the transparent box.</p>
+  </div>
+</div>
+
+</body>
 </html>
+
+
